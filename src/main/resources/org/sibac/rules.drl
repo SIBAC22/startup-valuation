@@ -1,26 +1,65 @@
-/*
- * Copyright 2015 Red Hat, Inc. and/or its affiliates.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
-*/
+package org.sibac.bayessample
 
-package org.sibac;
+import org.sibac.bayes.model.FactBayes;
+import org.sibac.bayes.model.Evidence;
+import org.sibac.bayes.model.Hypothesis;
+import org.sibac.bayes.listeners.TrackingAgendaListener;
 
-global java.util.Set controlSet;
-
-rule "will execute per each Measurement having ID color"
-no-loop
+rule "r1"
+salience 1
+/*lock-on-active true*/
 when
-	Measurement( id == "color", $colorVal : val )
+	Hypothesis( description == "valvula_escape", value == "bloqueada" )
 then
-	controlSet.add($colorVal);
+	System.out.println("rule r1 triggered");
+	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "limpar_valvula_escape", "verdadeiro");
+	$h.update();
 end
+
+rule "r2"
+@LS1(2.20)
+@LN1(0.20)
+salience 2
+/*lock-on-active true*/
+when
+	Evidence( description == "luz_aviso", value == "ligada" )
+then
+	System.out.println("rule r2 triggered");
+	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "valvula_escape", "bloqueada");
+	$h.update();
+end
+
+rule "r3"
+@LS1(85.0)
+@LN1(0.15)
+salience 3
+/*lock-on-active true*/
+when
+	Hypothesis( description == "pressao", value == "alta" )
+then
+	System.out.println("rule r3 triggered");
+	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "valvula_escape", "bloqueada");
+	$h.update();
+end
+
+rule "r4"
+@LS1(18.0)
+@LN1(0.11)
+@LS2(0.10)
+@LN2(1.90)
+salience 4
+/*lock-on-active true*/
+when
+	Evidence( description == "temperatura", value == "alta" )
+	Evidence( description == "nivel_agua", value == "baixo" )
+then
+	System.out.println("rule r4 triggered");
+	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "pressao", "alta");
+	$h.update();
+end
+
+
+
+
+
+
