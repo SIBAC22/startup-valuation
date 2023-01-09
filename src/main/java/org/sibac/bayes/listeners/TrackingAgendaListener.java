@@ -1,62 +1,54 @@
 package org.sibac.bayes.listeners;
 
-import org.sibac.bayes.model.FactBayes;
-import org.kie.api.event.rule.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import org.kie.api.event.rule.AfterMatchFiredEvent;
+import org.kie.api.event.rule.AgendaEventListener;
+import org.kie.api.event.rule.AgendaGroupPoppedEvent;
+import org.kie.api.event.rule.AgendaGroupPushedEvent;
+import org.kie.api.event.rule.BeforeMatchFiredEvent;
+import org.kie.api.event.rule.MatchCancelledEvent;
+import org.kie.api.event.rule.MatchCreatedEvent;
+import org.kie.api.event.rule.RuleFlowGroupActivatedEvent;
+import org.kie.api.event.rule.RuleFlowGroupDeactivatedEvent;
 import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieSession;
-
-import java.util.*;
+import org.sibac.bayes.model.FactBayes;
 
 
 public class TrackingAgendaListener implements AgendaEventListener {
-	
+
 	private static KieSession kieSession;
 	private static List<Object> activations;
 	private static String ruleName;
 	private static Map<String, Object> metaData;
 	private static RuleType rType;
 
-	//From TrackingAgendaEventListener
-	private List<FactBayes> lhs = new ArrayList<>();
-	private List<FactBayes> rhs = new ArrayList<>();
-
-	public void resetLhs() {
-		lhs.clear();
-	}
-
-	public void addLhs(FactBayes f) {
-		lhs.add(f);
-	}
-
-	public void resetRhs() {
-		rhs.clear();
-	}
-
-	public void addRhs(FactBayes f) {
-		rhs.add(f);
-	}
-
-
 	static public KieSession getKieSession() {
 		return kieSession;
 	}
-	
+
 	static public List<Object> getActivations() {
 		return activations;
 	}
-	
+
 	static public String getRuleName() {
 		return ruleName;
 	}
-	
+
 	static public Map<String, Object> getMetaData() {
 		return metaData;
 	}
-	
+
 	static public RuleType getRuleType() {
 		return rType;
 	}
-	
+
 	static public List<Double> getLHSprobabilities() {
 		ArrayList<Double> probabilityList = new ArrayList<>();
 		for(int i=0; i<activations.size(); i++) {
@@ -65,19 +57,19 @@ public class TrackingAgendaListener implements AgendaEventListener {
 		}
 		return probabilityList;
 	}
-	
+
 	static public Map<String, Double> getSupportFactors() throws Exception {
 		Map<String, Double> supportFactors = new HashMap<>();
-		
+
 		if (TrackingAgendaListener.rType == RuleType.DETERMINISTIC) {
 			return supportFactors;
 		}
-		
+
 		if (TrackingAgendaListener.activations.size() * 2 != metaData.size()) {
 			throw new Exception(ruleName + ": " + "Number of pairs LS,LN diferent from number of premises in LHS");
 		}
-		
-		
+
+
 		for (int i=1; i <= TrackingAgendaListener.activations.size(); i++) {
 			if (metaData.containsKey("LS" + i)) {
 				supportFactors.put("LS" + i, (Double)metaData.get("LS" + i));
@@ -90,10 +82,10 @@ public class TrackingAgendaListener implements AgendaEventListener {
 				throw new Exception(ruleName + ": " + "LN" + i + " factor not defined");
 			}
 		}
-		
+
 		return supportFactors;
 	}
-	
+
 	static public FactBayes getFactRef(Class<?> c, String description, String value) {
 		Collection<FactBayes> myfacts = (Collection<FactBayes>) kieSession.getObjects( new ClassObjectFilter(c) );
 		Iterator<FactBayes> iterator = myfacts.iterator();
@@ -113,7 +105,7 @@ public class TrackingAgendaListener implements AgendaEventListener {
 		TrackingAgendaListener.kieSession = null;
 		TrackingAgendaListener.activations = new ArrayList<Object>();
 		TrackingAgendaListener.ruleName = null;
-		TrackingAgendaListener.metaData = new HashMap<String, Object>(); 
+		TrackingAgendaListener.metaData = new HashMap<String, Object>();
 	}
 
 	@Override
@@ -183,5 +175,5 @@ public class TrackingAgendaListener implements AgendaEventListener {
 		// TODO Auto-generated method stub
 
 	}
-	
+
 }

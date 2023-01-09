@@ -1,4 +1,4 @@
-package org.sibac.bayessample
+package org.engcia.bayessample
 
 import org.sibac.bayes.model.FactBayes;
 import org.sibac.bayes.model.Evidence;
