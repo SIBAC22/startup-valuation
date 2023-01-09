@@ -4,62 +4,65 @@ import org.sibac.bayes.model.FactBayes;
 import org.sibac.bayes.model.Evidence;
 import org.sibac.bayes.model.Hypothesis;
 import org.sibac.bayes.listeners.TrackingAgendaListener
-import org.sibac.bayes.model.Conclusion;
+import org.sibac.bayes.model.Conclusion
+import org.sibac.bayes.model.FrameProduct;
 
-rule "r1"
+rule "Do you know your needs? No"
+
+salience 4
+/*lock-on-active true*/
+when
+	Evidence( description == "Do you know what your business needs?", value == "no" )
+then
+	System.out.println("rule r1 triggered");
+	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "Frame: Product-constrained", "yes");
+	$h.update();
+end
+
+rule "Frame:Product-constrained, what is your TRL?"
+salience 3
+/*lock-on-active true*/
+when
+	Hypothesis(description == "Frame: Product-constrained", value == "yes")
+	$FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-4]", $value : value )
+then
+    System.out.println("rule r2 triggered");
+    insert(new Conclusion("You current succcess probability based on TRL is " + $FrameProduct.getScore() * 100 + "%. Try identifying what your business needs and try again!"));
+end
+
+
+rule "Score with no business needs"
 salience 1
 /*lock-on-active true*/
 when
-	Hypothesis( description == "valvula_escape", value == "bloqueada" )
+	Evidence( description == "Frame: Product-constrained", value == "yes" )
 then
-	System.out.println("rule r1 triggered");
+	System.out.println("rule Product-constrained triggered");
 	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "limpar_valvula_escape", "verdadeiro");
     Conclusion c = new Conclusion(Conclusion.FATALPIPES);
     insert(c);
 	$h.update();
 end
 
-rule "r2"
-@LS1(2.20)
-@LN1(0.20)
+
+
+rule "What is your TRL?"
+@LS1(0.5)
+@LN1(2.0)
 salience 2
 /*lock-on-active true*/
 when
-	Evidence( description == "luz_aviso", value == "ligada" )
+    Hypothesis(description == "Frame: Product-constrained", value == "yes")
+	Evidence( description == "What is your TRL? [value 1-4]", value == "2")
 then
-	System.out.println("rule r2 triggered");
-	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "valvula_escape", "bloqueada");
-	$h.update();
+
+	Conclusion c = new Conclusion("12");
+	FrameProduct $f = (FrameProduct)TrackingAgendaListener.getFactRef(FrameProduct.class, "What is your TRL? [value 1-4]", "2");
+	//Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "Frame: Product-constrained", "yes");
+	$f.update();
 end
 
-rule "r3"
-@LS1(85.0)
-@LN1(0.15)
-salience 3
-/*lock-on-active true*/
-when
-	Hypothesis( description == "pressao", value == "alta" )
-then
-	System.out.println("rule r3 triggered");
-	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "valvula_escape", "bloqueada");
-	$h.update();
-end
 
-rule "r4"
-@LS1(18.0)
-@LN1(0.11)
-@LS2(0.10)
-@LN2(1.90)
-salience 4
-/*lock-on-active true*/
-when
-	Evidence( description == "temperatura", value == "alta" )
-	Evidence( description == "nivel_agua", value == "baixo" )
-then
-	System.out.println("rule r4 triggered");
-	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "pressao", "alta");
-	$h.update();
-end
 
 
 

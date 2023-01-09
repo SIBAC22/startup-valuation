@@ -7,6 +7,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.sibac.bayes.listeners.FactListener;
 import org.sibac.bayes.listeners.TrackingAgendaListener;
+import org.sibac.bayes.model.FrameProduct;
 import org.sibac.bayes.model.Hypothesis;
 import org.sibac.bayes.model.Evidence;
 
@@ -31,13 +32,12 @@ public class DroolsTest {
 
 			// go !
 
-			kSession.insert(new Evidence(0.0, "nivel_agua", "baixo"));
-			kSession.insert(new Evidence(1.0, "luz_aviso", "ligada"));
-			kSession.insert(new Evidence(1.0, "temperatura", "alta"));
+			kSession.insert(new Evidence(1.0, "Do you know what your business needs?", "no"));
+			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-4]", "4" ));
 
-			kSession.insert(new Hypothesis(0.02, "valvula_escape", "bloqueada"));
-			kSession.insert(new Hypothesis(0.1, "pressao", "alta"));
-			kSession.insert(new Hypothesis(0.5, "limpar_valvula_escape", "verdadeiro"));
+
+			kSession.insert(new Hypothesis(0.02, "Frame: Product-constrained", "yes"));
+			kSession.insert(new Hypothesis(0.1, "Frame: Team", "yes"));
 
 			kSession.fireAllRules();
 

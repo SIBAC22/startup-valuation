@@ -16,7 +16,7 @@ public class FactListener implements RuleRuntimeEventListener {
 	@Override
 	public void objectInserted(ObjectInsertedEvent event) {
 		// FactHandle fact = event.getFactHandle();
-		System.out.println("Asserted: " + event.getObject().toString());
+		System.out.println(event.getObject().toString());
 	}
 
 	@Override
