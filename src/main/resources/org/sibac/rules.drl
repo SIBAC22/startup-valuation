@@ -3,7 +3,8 @@ package org.engcia.bayessample
 import org.sibac.bayes.model.FactBayes;
 import org.sibac.bayes.model.Evidence;
 import org.sibac.bayes.model.Hypothesis;
-import org.sibac.bayes.listeners.TrackingAgendaListener;
+import org.sibac.bayes.listeners.TrackingAgendaListener
+import org.sibac.bayes.model.Conclusion;
 
 rule "r1"
 salience 1
@@ -13,6 +14,8 @@ when
 then
 	System.out.println("rule r1 triggered");
 	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "limpar_valvula_escape", "verdadeiro");
+    Conclusion c = new Conclusion(Conclusion.FATALPIPES);
+    insert(c);
 	$h.update();
 end
 

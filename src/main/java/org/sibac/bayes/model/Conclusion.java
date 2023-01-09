@@ -1,7 +1,7 @@
 package org.sibac.bayes.model;
 
 public class Conclusion extends FactBayes{
-
+    public static final String FATALPIPES = "Fatal blow up";
     private String description;
 
     public Conclusion(String description) {
