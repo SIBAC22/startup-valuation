@@ -8,6 +8,7 @@ import org.kie.api.runtime.KieSession;
 import org.sibac.bayes.listeners.FactListener;
 import org.sibac.bayes.listeners.TrackingAgendaListener;
 import org.sibac.bayes.model.FrameProduct;
+import org.sibac.bayes.model.FrameTeam;
 import org.sibac.bayes.model.Hypothesis;
 import org.sibac.bayes.model.Evidence;
 
@@ -43,7 +44,7 @@ public class DroolsTest {
 			kSession.insert(new Evidence(1.0, "Do your team or advisors have industry expertise?", "no"));
 
 
-
+			kSession.insert(new FrameTeam(1.0, "", ""));
 
 			kSession.fireAllRules();
 

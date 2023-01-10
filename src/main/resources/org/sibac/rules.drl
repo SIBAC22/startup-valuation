@@ -5,7 +5,8 @@ import org.sibac.bayes.model.Evidence;
 import org.sibac.bayes.model.Hypothesis;
 import org.sibac.bayes.listeners.TrackingAgendaListener
 import org.sibac.bayes.model.Conclusion
-import org.sibac.bayes.model.FrameProduct;
+import org.sibac.bayes.model.FrameProduct
+import org.sibac.bayes.model.FrameTeam;
 
 rule "Do you know your needs? No"
 
@@ -53,6 +54,7 @@ when
 	$Experience : Evidence(probability==1.0, description == "Do you have previous experience as a team?", $EXPvalue : value )
 	$Goals : Evidence(probability==1.0, description == "Are your personal goals aligned with the start-up vision?", $GOALvalue : value )
 	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $EXPERTISEvalue : value )
+    $FrameTeam : FrameTeam()
 
 then
     System.out.println("rule r2 triggered yes");
@@ -64,12 +66,9 @@ then
     System.out.println($EXPERTISEvalue);
 
 
+    System.out.println($FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GOALvalue, $EXPvalue, $EXPERTISEvalue));
+
 end
-
-
-
-
-
 
 
 
