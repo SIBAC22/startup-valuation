@@ -14,6 +14,7 @@ public class FactBayes implements Comparable<FactBayes>, Uncertainty {
 	private double probability;
 	private String description;
 	private String value;
+	private Double doubleValue;
 
 	public static void update(Class c, String description, String value) {
 		Collection<Object> myfacts = (Collection<Object>) TrackingAgendaListener.getKieSession().getObjects( new ClassObjectFilter(c) );
@@ -59,6 +60,9 @@ public class FactBayes implements Comparable<FactBayes>, Uncertainty {
 
 	public String getValue() {
 		return this.value;
+	}
+	public Double getDouble() {
+		return this.doubleValue;
 	}
 
 	public void setValue(String value) {

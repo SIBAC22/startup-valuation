@@ -7,10 +7,7 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.sibac.bayes.listeners.FactListener;
 import org.sibac.bayes.listeners.TrackingAgendaListener;
-import org.sibac.bayes.model.FrameProduct;
-import org.sibac.bayes.model.FrameTeam;
-import org.sibac.bayes.model.Hypothesis;
-import org.sibac.bayes.model.Evidence;
+import org.sibac.bayes.model.*;
 
 
 /**
@@ -33,16 +30,18 @@ public class DroolsTest {
 
 			// go !
 
+			//kSession.insert(new Conclusion( "", 2.0));
 			kSession.insert(new Evidence(1.0, "Do you know what your business needs?", "yes"));
 			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-4]", "4" ));
 
 			kSession.insert(new Evidence(1.0, "Do you have the technical skills?", "yes"));
-			kSession.insert(new Evidence(1.0, "Do you have the analytical skills?", "no"));
+			kSession.insert(new Evidence(1.0, "Do you have the analytical skills?", "yes"));
 			kSession.insert(new Evidence(1.0, "Do you have the marketing skills?", "no"));
 			kSession.insert(new Evidence(1.0, "Do you have previous experience as a team?", "yes"));
 			kSession.insert(new Evidence(1.0, "Are your personal goals aligned with the start-up vision?", "yes"));
 			kSession.insert(new Evidence(1.0, "Do your team or advisors have industry expertise?", "no"));
 
+			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-9]", "9" ));
 
 
 			kSession.fireAllRules();

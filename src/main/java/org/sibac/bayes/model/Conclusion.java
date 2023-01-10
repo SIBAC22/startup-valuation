@@ -1,25 +1,29 @@
 package org.sibac.bayes.model;
 
 public class Conclusion extends FactBayes{
-    public static final String FATALPIPES = "Fatal blow up";
     private String description;
-    private double score;
+    private Double scoreCount;
 
     public Conclusion(String description) {
         super();
         this.description = description;
     }
 
-    public Conclusion(int trl) {
-        this.score = (trl/9) *0.22;
+    public Conclusion(String description, Double scoreCount) {
+        super();
+        this.description = description;
+        this.scoreCount = scoreCount;
     }
 
     public String getDescription() {
         return description;
     }
+    public Double getCount() {
+        return scoreCount;
+    }
 
     public String toString() {
-        return ("Conclusion: " + description);
+        return ("Conclusion: " + description + " " + scoreCount);
     }
 
 }

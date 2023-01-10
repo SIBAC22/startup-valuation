@@ -56,7 +56,6 @@ when
 	$Goals : Evidence(probability==1.0, description == "Are your personal goals aligned with the start-up vision?", $GOALvalue : value )
 	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $EXPERTISEvalue : value )
     $FrameTeam : FrameTeam()
-
 then
     System.out.println("rule r2 triggered yes");
     System.out.println($TSvalue);
@@ -69,7 +68,18 @@ then
 
     System.out.println($FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GOALvalue, $EXPvalue, $EXPERTISEvalue));
 
+    insert(new Conclusion("", $FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GOALvalue, $EXPvalue, $EXPERTISEvalue)));
+    insert(new Hypothesis(1.0, "Frame: Product", "yes"));
 end
 
-
-
+rule "Frame: Product, what is your TRL?"
+salience 1
+when
+   Hypothesis(description == "Frame: Product", value == "yes")
+   $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
+   $Conclusion : Conclusion(description=="")
+then
+    System.out.println("rule dummy triggered");
+    System.out.println($Conclusion.getCount()+$FrameProduct.getScore());
+    insert(new Conclusion("Frame:Product", $Conclusion.getCount()+$FrameProduct.getScore()));
+end
