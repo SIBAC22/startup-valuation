@@ -40,6 +40,7 @@ when
 then
 	System.out.println("rule r1 triggered yes");
 	insert(new Hypothesis(1.0, "Frame: Team", "yes"));
+	insert(new FrameTeam(1.0, "Frame: Team", "yes"));
 end
 
 

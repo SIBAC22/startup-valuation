@@ -44,7 +44,6 @@ public class DroolsTest {
 			kSession.insert(new Evidence(1.0, "Do your team or advisors have industry expertise?", "no"));
 
 
-			kSession.insert(new FrameTeam(1.0, "", ""));
 
 			kSession.fireAllRules();
 
