@@ -32,12 +32,18 @@ public class DroolsTest {
 
 			// go !
 
-			kSession.insert(new Evidence(1.0, "Do you know what your business needs?", "no"));
+			kSession.insert(new Evidence(1.0, "Do you know what your business needs?", "yes"));
 			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-4]", "4" ));
 
+			kSession.insert(new Evidence(1.0, "Do you have the technical skills?", "yes"));
+			kSession.insert(new Evidence(1.0, "Do you have the analytical skills?", "no"));
+			kSession.insert(new Evidence(1.0, "Do you have the marketing skills?", "no"));
+			kSession.insert(new Evidence(1.0, "Do you have previous experience as a team?", "yes"));
+			kSession.insert(new Evidence(1.0, "Are your personal goals aligned with the start-up vision?", "yes"));
+			kSession.insert(new Evidence(1.0, "Do your team or advisors have industry expertise?", "no"));
 
-			kSession.insert(new Hypothesis(0.02, "Frame: Product-constrained", "yes"));
-			kSession.insert(new Hypothesis(0.1, "Frame: Team", "yes"));
+
+
 
 			kSession.fireAllRules();
 

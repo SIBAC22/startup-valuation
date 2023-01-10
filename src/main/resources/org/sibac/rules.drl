@@ -15,8 +15,7 @@ when
 	Evidence( description == "Do you know what your business needs?", value == "no" )
 then
 	System.out.println("rule r1 triggered");
-	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "Frame: Product-constrained", "yes");
-	$h.update();
+	insert(new Hypothesis(1.0, "Frame: Product-constrained", "yes"));
 end
 
 rule "Frame:Product-constrained, what is your TRL?"
@@ -31,35 +30,40 @@ then
 end
 
 
-rule "Score with no business needs"
-salience 1
+rule "Do you know your needs? Yes"
+
+salience 4
 /*lock-on-active true*/
 when
-	Evidence( description == "Frame: Product-constrained", value == "yes" )
+	Evidence( description == "Do you know what your business needs?", value == "yes" )
 then
-	System.out.println("rule Product-constrained triggered");
-	Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "limpar_valvula_escape", "verdadeiro");
-    Conclusion c = new Conclusion(Conclusion.FATALPIPES);
-    insert(c);
-	$h.update();
+	System.out.println("rule r1 triggered yes");
+	insert(new Hypothesis(1.0, "Frame: Team", "yes"));
 end
 
 
-
-rule "What is your TRL?"
-@LS1(0.5)
-@LN1(2.0)
-salience 2
+rule "Frame: Team"
+salience 3
 /*lock-on-active true*/
 when
-    Hypothesis(description == "Frame: Product-constrained", value == "yes")
-	Evidence( description == "What is your TRL? [value 1-4]", value == "2")
-then
+	Hypothesis(description == "Frame: Team", value == "yes")
+	$TS : Evidence(probability==1.0, description == "Do you have the technical skills?", $TSvalue : value )
+	$AS : Evidence(probability==1.0, description == "Do you have the analytical skills?", $ASvalue : value )
+	$MS : Evidence(probability==1.0, description == "Do you have the marketing skills?", $MSvalue : value )
+	$Experience : Evidence(probability==1.0, description == "Do you have previous experience as a team?", $EXPvalue : value )
+	$Goals : Evidence(probability==1.0, description == "Are your personal goals aligned with the start-up vision?", $GOALvalue : value )
+	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $EXPERTISEvalue : value )
 
-	Conclusion c = new Conclusion("12");
-	FrameProduct $f = (FrameProduct)TrackingAgendaListener.getFactRef(FrameProduct.class, "What is your TRL? [value 1-4]", "2");
-	//Hypothesis $h = (Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "Frame: Product-constrained", "yes");
-	$f.update();
+then
+    System.out.println("rule r2 triggered yes");
+    System.out.println($TSvalue);
+    System.out.println($ASvalue);
+    System.out.println($MSvalue);
+    System.out.println($EXPvalue);
+    System.out.println($GOALvalue);
+    System.out.println($EXPERTISEvalue);
+
+
 end
 
 
