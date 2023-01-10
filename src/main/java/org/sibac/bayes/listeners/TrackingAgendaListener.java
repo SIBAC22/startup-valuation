@@ -100,20 +100,6 @@ public class TrackingAgendaListener implements AgendaEventListener {
 		return null;
 	}
 
-	static public FactBayes getFactDouble(Class<?> c, String description, Double value) {
-		Collection<FactBayes> myfacts = (Collection<FactBayes>) kieSession.getObjects( new ClassObjectFilter(c) );
-		Iterator<FactBayes> iterator = myfacts.iterator();
-		while (iterator.hasNext()) {
-			FactBayes fact = iterator.next();
-			String factDesc = fact.getDescription();
-			Double factVal = fact.getDouble();
-			if (factDesc.compareTo(description) == 0 && factVal.compareTo(value) == 0) {
-				return fact;
-			}
-		}
-		return null;
-	}
-
 	public TrackingAgendaListener() {
 		super();
 		TrackingAgendaListener.kieSession = null;

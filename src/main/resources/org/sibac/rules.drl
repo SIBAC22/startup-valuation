@@ -10,7 +10,7 @@ import org.sibac.bayes.model.FrameTeam;
 
 rule "Do you know your needs? No"
 
-salience 4
+salience 5
 /*lock-on-active true*/
 when
 	Evidence( description == "Do you know what your business needs?", value == "no" )
@@ -20,7 +20,7 @@ then
 end
 
 rule "Frame:Product-constrained, what is your TRL?"
-salience 3
+salience 4
 /*lock-on-active true*/
 when
 	Hypothesis(description == "Frame: Product-constrained", value == "yes")
@@ -33,7 +33,7 @@ end
 
 rule "Do you know your needs? Yes"
 
-salience 4
+salience 5
 /*lock-on-active true*/
 when
 	Evidence( description == "Do you know what your business needs?", value == "yes" )
@@ -45,7 +45,7 @@ end
 
 
 rule "Frame: Team"
-salience 3
+salience 4
 /*lock-on-active true*/
 when
 	Hypothesis(description == "Frame: Team", value == "yes")
@@ -73,7 +73,7 @@ then
 end
 
 rule "Frame: Product, what is your TRL?"
-salience 1
+salience 3
 when
    Hypothesis(description == "Frame: Product", value == "yes")
    $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
@@ -81,5 +81,63 @@ when
 then
     System.out.println("rule dummy triggered");
     System.out.println($Conclusion.getCount()+$FrameProduct.getScore());
-    insert(new Conclusion("Frame:Product", $Conclusion.getCount()+$FrameProduct.getScore()));
+    insert(new Conclusion("Frame:Product", $Conclusion.getCount() + $FrameProduct.getScore()));
+end
+
+rule "Do you have competitors? No"
+salience 2
+when
+	Evidence( description == "Do you have competitors?", value == "no" )
+then
+	System.out.println("rule competitors triggered no");
+	insert(new Hypothesis(1.0, "Frame: Traction", "yes"));
+end
+
+rule "Convert TractionEvidence values to probabilities"
+salience 2
+when
+    Evidence(probability == 1.0, description == "From 1 to 10, how good is your LTV?", $LTVvalue : value)
+    Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
+then
+	System.out.println("rule convert probs triggered");
+	insert(new Hypothesis(Double.valueOf($LTVvalue) * 0.1, "LTV", "yes"));
+	insert(new Hypothesis(Double.valueOf($interest) * 0.1, "Interest", "yes"));
+
+	insert(new Hypothesis(Double.valueOf($LTVvalue) * 0.1, "LTVprob", "yes"));
+end
+
+rule "Use hypothesis to calculate P(Traction|LTV)"
+@LS1(0.05)
+@LN1(20.0)
+salience 1
+when
+    $LTVhypo : Hypothesis(description == "LTV", value == "yes")
+    //Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
+then
+	System.out.println("rule traction triggered");
+	System.out.println($LTVhypo.getProbability());
+    Hypothesis $h =(Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "LTV", "yes");
+	$h.update();
+end
+
+
+rule "Do you have competitors? Yes"
+salience 1
+when
+	Evidence( description == "Do you have competitors?", value == "yes" )
+then
+	System.out.println("rule competitors triggered yes");
+	insert(new Hypothesis(1.0, "Can you protect your technology?", "yes"));
+end
+
+/*TODO*/
+rule "Can you protect your technology? Yes"
+salience 1
+when
+	Evidence( description == "Can you protect your technology?", value == "yes" )
+	$Conclusion : Conclusion(description=="")
+then
+	System.out.println("rule protect technology triggered yes");
+	insert(new Conclusion("Protect-technology", $Conclusion.getCount() + 0.10));
+	insert(new Hypothesis(1.0, "Frame: Traction", "yes"));
 end

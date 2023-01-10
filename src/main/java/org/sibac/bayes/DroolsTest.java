@@ -43,6 +43,10 @@ public class DroolsTest {
 
 			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-9]", "9" ));
 
+			kSession.insert(new Evidence(1.0, "Do you have competitors?", "no"));
+
+			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your LTV?", "5"));
+			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your engagement rate?", "7"));
 
 			kSession.fireAllRules();
 
