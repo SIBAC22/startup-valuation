@@ -109,13 +109,26 @@ end
 rule "Use hypothesis to calculate P(Traction|LTV)"
 @LS1(0.05)
 @LN1(20.0)
-salience 1
+salience 2
 when
     $LTVhypo : Hypothesis(description == "LTV", value == "yes")
     //Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
 then
 	System.out.println("rule traction triggered");
 	System.out.println($LTVhypo.getProbability());
+    Hypothesis $h =(Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "LTVprob", "yes");
+	$h.update();
+end
+
+rule "Dummy bayes"
+@LS1(10.0)
+@LN1(5.0)
+salience 1
+when
+    Evidence(description == "fake", value == "yes")
+    //Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
+then
+	System.out.println("rule dummy bayes triggered");
     Hypothesis $h =(Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "LTV", "yes");
 	$h.update();
 end
