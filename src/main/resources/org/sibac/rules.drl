@@ -8,6 +8,7 @@ import org.sibac.bayes.model.Conclusion
 import org.sibac.bayes.model.FrameProduct
 import org.sibac.bayes.model.FrameTeam;
 
+//rule1
 rule "Do you know your needs? No"
 
 salience 100
@@ -19,6 +20,7 @@ then
 	insert(new Hypothesis(1.0, "Frame: Product-constrained", "yes"));
 end
 
+//rule2
 rule "Frame:Product-constrained, what is your TRL?"
 salience 80
 /*lock-on-active true*/
@@ -31,6 +33,7 @@ then
 end
 
 
+//rule3
 rule "Do you know your needs? Yes"
 
 salience 100
@@ -43,7 +46,7 @@ then
 	insert(new FrameTeam(1.0, "Frame: Team", "yes"));
 end
 
-
+//rule4
 rule "Frame: Team"
 salience 80
 /*lock-on-active true*/
@@ -71,6 +74,7 @@ then
     insert(new Hypothesis(1.0, "Frame: Product", "yes"));
 end
 
+//rule5
 rule "Frame: Product, what is your TRL?"
 salience 50
 when
@@ -82,6 +86,7 @@ then
     insert(new Conclusion("Frame:Product", $Conclusion.getCount() + $FrameProduct.getScore()));
 end
 
+//rule6
 rule "Do you have competitors? No"
 salience 40
 when
@@ -91,6 +96,7 @@ then
 	insert(new Hypothesis(1.0, "Frame: Traction", "yes"));
 end
 
+//rule7
 rule "Convert TractionEvidence values to probabilities"
 salience 40
 when
@@ -107,6 +113,7 @@ then
 
 end
 
+//rule8
 rule "Use hypothesis to calculate P(Traction|LTV)"
 @LS1(4.0)
 @LN1(2.5)
@@ -118,6 +125,7 @@ then
     TrackingAgendaListener.getFactRef(Hypothesis.class, "LTVprob", "yes").update();
 end
 
+//rule9
 rule "Use hypothesis to calculate P(Traction|Interest)"
 @LS1(9.0)
 @LN1(0.11)
@@ -129,7 +137,7 @@ then
     TrackingAgendaListener.getFactRef(Hypothesis.class, "InterestProb", "yes").update();
 end
 
-
+//rule10
 rule "Create hypotehsis that holds conditional prob of P(interest)*P(LTV)"
 salience 25
 when
@@ -140,7 +148,7 @@ then
     insert(new Hypothesis($LTV.getProbability() * $interest.getProbability(), "P(Traction|LTV|Interest)", "yes"));
 end
 
-
+//rule11
 rule "Use hypothesis to calculate P(Traction|LTV|Interest)"
 @LS1(9.0)
 @LN1(0.67)
@@ -155,10 +163,11 @@ then
     TrackingAgendaListener.getFactRef(Hypothesis.class, "P(Traction|LTV|Interest)", "yes").update();
 end
 
-
+//rule12
 rule "Frame: Traction"
 salience 9
 when
+   Hypothesis(description == "Frame: Traction", value== "yes")
    $Hypothesis : Hypothesis(description == "P(Traction|LTV|Interest)", value == "yes")
    $Conclusion : Conclusion(description=="Frame:Product")
 then
@@ -167,6 +176,7 @@ then
 end
 
 
+//rule13
 rule "Do you have competitors? Yes"
 salience 20
 when
@@ -176,7 +186,7 @@ then
 	insert(new Hypothesis(1.0, "Can you protect your technology?", "yes"));
 end
 
-
+//rule14
 rule "Can you protect your technology? Yes"
 salience 20
 when
@@ -186,5 +196,17 @@ when
 then
 	System.out.println("rule protect technology triggered yes");
 	insert(new Conclusion("IP", $Conclusion.getCount() + 0.1));
-	insert(new Hypothesis(1.0, "Frame: Traction", "yes"));
+	insert(new Hypothesis(1.0, "Frame: Traction + IP", "yes"));
+end
+
+//rule15 same as 13
+rule "Frame: Traction + IP"
+salience 9
+when
+   Hypothesis(description == "Frame: Traction + IP", value =="yes")
+   $Hypothesis : Hypothesis(description == "P(Traction|LTV|Interest)", value == "yes")
+   $Conclusion : Conclusion(description=="IP")
+then
+    System.out.println("rule Frame: Traction triggered");
+    insert(new Conclusion("Frame:Traction", $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2));
 end
