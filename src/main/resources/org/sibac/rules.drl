@@ -176,14 +176,15 @@ then
 	insert(new Hypothesis(1.0, "Can you protect your technology?", "yes"));
 end
 
-/*TODO*/
+
 rule "Can you protect your technology? Yes"
 salience 20
 when
+	Hypothesis(description == "Can you protect your technology?", value == "yes" )
 	Evidence( description == "Can you protect your technology?", value == "yes" )
-	$Conclusion : Conclusion(description=="")
+	$Conclusion : Conclusion(description=="Frame:Product")
 then
 	System.out.println("rule protect technology triggered yes");
-	insert(new Conclusion("Protect-technology", $Conclusion.getCount() + 0.10));
+	insert(new Conclusion("IP", $Conclusion.getCount() + 0.1));
 	insert(new Hypothesis(1.0, "Frame: Traction", "yes"));
 end
