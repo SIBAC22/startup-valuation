@@ -153,9 +153,8 @@ public class FactBayes implements Comparable<FactBayes>, Uncertainty {
 		return (2 * (1 - ln) * prob) + ln;
 	}
 
-	private double prob2odd(double prob) {
-		return prob / (1 - prob);
-	}
+	//Probability 1.0 can not be substituted so we are using 99.99 instead by the limits of 1.0 approximated by 0.99...
+	private double prob2odd(double prob) { return prob == 1.0 ? 99.99 : prob / (1 - prob); }
 
 	private double odd2prob(double odd) {
 		return odd / (odd + 1);

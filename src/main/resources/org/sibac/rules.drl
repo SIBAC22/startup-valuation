@@ -10,7 +10,7 @@ import org.sibac.bayes.model.FrameTeam;
 
 rule "Do you know your needs? No"
 
-salience 5
+salience 100
 /*lock-on-active true*/
 when
 	Evidence( description == "Do you know what your business needs?", value == "no" )
@@ -20,7 +20,7 @@ then
 end
 
 rule "Frame:Product-constrained, what is your TRL?"
-salience 4
+salience 80
 /*lock-on-active true*/
 when
 	Hypothesis(description == "Frame: Product-constrained", value == "yes")
@@ -33,7 +33,7 @@ end
 
 rule "Do you know your needs? Yes"
 
-salience 5
+salience 100
 /*lock-on-active true*/
 when
 	Evidence( description == "Do you know what your business needs?", value == "yes" )
@@ -45,7 +45,7 @@ end
 
 
 rule "Frame: Team"
-salience 4
+salience 80
 /*lock-on-active true*/
 when
 	Hypothesis(description == "Frame: Team", value == "yes")
@@ -73,7 +73,7 @@ then
 end
 
 rule "Frame: Product, what is your TRL?"
-salience 3
+salience 50
 when
    Hypothesis(description == "Frame: Product", value == "yes")
    $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
@@ -85,7 +85,7 @@ then
 end
 
 rule "Do you have competitors? No"
-salience 2
+salience 40
 when
 	Evidence( description == "Do you have competitors?", value == "no" )
 then
@@ -94,7 +94,7 @@ then
 end
 
 rule "Convert TractionEvidence values to probabilities"
-salience 2
+salience 40
 when
     Evidence(probability == 1.0, description == "From 1 to 10, how good is your LTV?", $LTVvalue : value)
     Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
@@ -104,38 +104,63 @@ then
 	insert(new Hypothesis(Double.valueOf($interest) * 0.1, "Interest", "yes"));
 
 	insert(new Hypothesis(Double.valueOf($LTVvalue) * 0.1, "LTVprob", "yes"));
+	insert(new Hypothesis(Double.valueOf($interest) * 0.1, "InterestProb", "yes"));
+
+
 end
 
 rule "Use hypothesis to calculate P(Traction|LTV)"
-@LS1(0.05)
-@LN1(20.0)
-salience 2
+@LS1(4.0)
+@LN1(2.5)
+salience 30
 when
-    $LTVhypo : Hypothesis(description == "LTV", value == "yes")
-    //Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
+    Hypothesis(description == "LTV", value == "yes")
 then
-	System.out.println("rule traction triggered");
-	System.out.println($LTVhypo.getProbability());
-    Hypothesis $h =(Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "LTVprob", "yes");
-	$h.update();
+	System.out.println("rule LTV traction triggered");
+    TrackingAgendaListener.getFactRef(Hypothesis.class, "LTVprob", "yes").update();
 end
 
-rule "Dummy bayes"
-@LS1(10.0)
-@LN1(5.0)
+rule "Use hypothesis to calculate P(Traction|Interest)"
+@LS1(9.0)
+@LN1(0.11)
+salience 30
+when
+    Hypothesis(description == "Interest", value == "yes")
+then
+	System.out.println("rule Interest traction triggered");
+    TrackingAgendaListener.getFactRef(Hypothesis.class, "InterestProb", "yes").update();
+end
+
+
+rule "Create hypotehsis that holds conditional prob of P(interest)*P(LTV)"
+salience 25
+when
+    $LTV : Hypothesis(description == "LTVprob", value == "yes")
+    $interest : Hypothesis(description == "InterestProb", value == "yes")
+then
+    System.out.println("cond prob");
+    insert(new Hypothesis($LTV.getProbability() * $interest.getProbability(), "P(Traction|LTVprob|Interest)", "yes"));
+end
+
+
+rule "Use hypothesis to calculate P(Traction|LTV|Interest)"
+@LS1(9)
+@LN1(0.67)
+@LS2(1.5)
+@LN2(0.11)
 salience 1
 when
-    Evidence(description == "fake", value == "yes")
-    //Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
+    Hypothesis(description == "LTVprob", value == "yes") and
+    Hypothesis(description == "InterestProb", value == "yes")
 then
-	System.out.println("rule dummy bayes triggered");
-    Hypothesis $h =(Hypothesis)TrackingAgendaListener.getFactRef(Hypothesis.class, "LTV", "yes");
-	$h.update();
+    System.out.println("Working?");
+    TrackingAgendaListener.getFactRef(Hypothesis.class, "P(Traction|LTV|Interest)", "yes").update();
 end
+
 
 
 rule "Do you have competitors? Yes"
-salience 1
+salience 20
 when
 	Evidence( description == "Do you have competitors?", value == "yes" )
 then
@@ -145,7 +170,7 @@ end
 
 /*TODO*/
 rule "Can you protect your technology? Yes"
-salience 1
+salience 20
 when
 	Evidence( description == "Can you protect your technology?", value == "yes" )
 	$Conclusion : Conclusion(description=="")

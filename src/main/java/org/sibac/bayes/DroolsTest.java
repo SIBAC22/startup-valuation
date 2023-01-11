@@ -45,10 +45,9 @@ public class DroolsTest {
 
 			kSession.insert(new Evidence(1.0, "Do you have competitors?", "no"));
 
-			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your LTV?", "5"));
-			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your engagement rate?", "7"));
+			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your LTV?", "9"));
+			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your engagement rate?", "10"));
 
-			kSession.insert(new Evidence(1.0, "fake", "yes"));
 
 			kSession.fireAllRules();
 
