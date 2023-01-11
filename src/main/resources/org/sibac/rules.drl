@@ -16,7 +16,7 @@ salience 100
 when
 	Evidence( description == "Do you know what your business needs?", value == "no" )
 then
-	System.out.println("rule r1 triggered");
+	System.out.println("rule Business needs no triggered");
 	insert(new Hypothesis(1.0, "Frame: Product-constrained", "yes"));
 end
 
@@ -28,7 +28,7 @@ when
 	Hypothesis(description == "Frame: Product-constrained", value == "yes")
 	$FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-4]", $value : value )
 then
-    System.out.println("rule r2 triggered");
+    System.out.println("rule Frame: Product triggered");
     insert(new Conclusion("You current succcess probability based on TRL is " + $FrameProduct.getScore() * 100 + "%. Try identifying what your business needs and try again!"));
 end
 
@@ -41,7 +41,7 @@ salience 100
 when
 	Evidence( description == "Do you know what your business needs?", value == "yes" )
 then
-	System.out.println("rule r1 triggered yes");
+	System.out.println("rule Business needs yes triggered");
 	insert(new Hypothesis(1.0, "Frame: Team", "yes"));
 	insert(new FrameTeam(1.0, "Frame: Team", "yes"));
 end
@@ -60,7 +60,7 @@ when
 	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $EXPERTISEvalue : value )
     $FrameTeam : FrameTeam()
 then
-    System.out.println("rule r2 triggered yes");
+    System.out.println("rule Frame: Team triggered yes");
     System.out.println($TSvalue);
     System.out.println($ASvalue);
     System.out.println($MSvalue);
@@ -109,8 +109,6 @@ then
 
 	insert(new Hypothesis(Double.valueOf($LTVvalue) * 0.1, "LTVprob", "yes"));
 	insert(new Hypothesis(Double.valueOf($interest) * 0.1, "InterestProb", "yes"));
-
-
 end
 
 //rule8
@@ -199,7 +197,7 @@ then
 	insert(new Hypothesis(1.0, "Frame: Traction + IP", "yes"));
 end
 
-//rule15 same as 13
+//rule15 same as 12
 rule "Frame: Traction + IP"
 salience 9
 when
@@ -209,4 +207,62 @@ when
 then
     System.out.println("rule Frame: Traction triggered");
     insert(new Conclusion("Frame:Traction", $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2));
+end
+
+
+//rule16
+rule "Input SAM and MoneyToMarket values to ratio"
+salience 8
+when
+    Evidence(probability==1.0, description == "What’s your SAM within 5 years?", $SAM : value )
+    Evidence(probability==1.0, description == "How much money do you need to enter a market?", $money2market : value )
+    Evidence(probability==1.0, description == "What’s your TAM within 5 years?", $TAM : value )
+then
+	System.out.println("rule input SAM & Money triggered");
+	if (Double.valueOf($SAM)/Double.valueOf($money2market) > 9) { insert(new Hypothesis(0.9, "SAM/money2market", "yes")); insert(new Hypothesis(0.9, "SAM/money2marketProb", "yes")); }
+	else { insert(new Hypothesis(0.1, "SAM/money2market", "yes")); insert(new Hypothesis(0.1, "SAM/money2marketProb", "yes")); }
+
+	if (Double.valueOf($TAM)/Double.valueOf($SAM) > 9) { insert(new Hypothesis(0.9, "TAM/SAM", "yes")); insert(new Hypothesis(0.9, "TAM/SAMProb", "yes")); }
+    else { insert(new Hypothesis(0.1, "TAM/SAM", "yes")); insert(new Hypothesis(0.1, "TAM/SAMProb", "yes")); }
+end
+
+
+//rule17
+rule "Use hypothesis to calculate SAM/Money2Market"
+@LS1(2.3)
+@LN1(0.43)
+salience 7
+when
+    Hypothesis(description == "SAM/money2market", value == "yes")
+then
+	System.out.println("rule calculate SAM/Money2Market triggered");
+    TrackingAgendaListener.getFactRef(Hypothesis.class, "SAM/money2marketProb", "yes").update();
+    insert(new Hypothesis(1.0, "Market", "yes"));
+end
+
+//rule18
+rule "Use hypothesis to calculate TAM/SAM"
+@LS1(19.0)
+@LN1(0.05)
+salience 4
+when
+    Hypothesis(description == "TAM/SAM", value == "yes")
+then
+	System.out.println("rule calculate TAM/SAM triggered");
+    TrackingAgendaListener.getFactRef(Hypothesis.class, "TAM/SAMProb", "yes").update();
+end
+
+//rule19
+rule "Probability of market opportunity"
+@LS1(19.0)
+@LN1(1.0)
+@LS2(0.25)
+@LN2(0.05)
+salience 1
+when
+    Hypothesis(description == "SAM/money2marketProb", value == "yes")
+    Hypothesis(description == "TAM/SAMProb", value == "yes")
+then
+    System.out.println("rule market opportunity prob");
+    TrackingAgendaListener.getFactRef(Hypothesis.class, "Market", "yes").update();
 end

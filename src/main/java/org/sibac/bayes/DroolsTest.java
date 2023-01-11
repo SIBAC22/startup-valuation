@@ -1,8 +1,6 @@
 package org.sibac.bayes;
 
-//import org.drools.core.rule.builder.dialect.asm.ClassGenerator;
 import org.kie.api.KieServices;
-//import org.kie.api.event.rule.RuleRuntimeEventListener;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 import org.sibac.bayes.listeners.FactListener;
@@ -29,8 +27,6 @@ public class DroolsTest {
 			kSession.addEventListener(new FactListener());
 
 			// go !
-
-			//kSession.insert(new Conclusion( "", 2.0));
 			kSession.insert(new Evidence(1.0, "Do you know what your business needs?", "yes"));
 			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-4]", "4" ));
 
@@ -52,6 +48,9 @@ public class DroolsTest {
 
 			kSession.insert(new Evidence(1.0, "Can you protect your technology?", "yes"));
 
+			kSession.insert(new Evidence(1.0, "What’s your SAM within 5 years?", "10"));
+			kSession.insert(new Evidence(1.0, "How much money do you need to enter a market?", "1"));
+			kSession.insert(new Evidence(1.0, "What’s your TAM within 5 years?", "10"));
 
 			kSession.fireAllRules();
 
