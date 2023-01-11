@@ -6,8 +6,10 @@ import org.sibac.bayes.model.Hypothesis;
 import org.sibac.bayes.listeners.TrackingAgendaListener
 import org.sibac.bayes.model.Conclusion
 import org.sibac.bayes.model.FrameProduct
-import org.sibac.bayes.model.FrameTeam;
-
+import org.sibac.bayes.model.FrameTeam
+import java.util.ArrayList
+import java.util.List
+import java.util.Arrays;
 //rule1
 rule "Do you know your needs? No"
 
@@ -237,14 +239,14 @@ when
 then
 	System.out.println("rule calculate SAM/Money2Market triggered");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "SAM/money2marketProb", "yes").update();
-    insert(new Hypothesis(1.0, "Market", "yes"));
+
 end
 
 //rule18
 rule "Use hypothesis to calculate TAM/SAM"
 @LS1(19.0)
-@LN1(0.05)
-salience 4
+@LN1(1.0)
+salience 6
 when
     Hypothesis(description == "TAM/SAM", value == "yes")
 then
@@ -253,6 +255,18 @@ then
 end
 
 //rule19
+rule "Create hypotehsis that holds conditional prob of P(SAM/Money)*P(TAM/SAM)"
+salience 5
+when
+    $h1 : Hypothesis(description == "TAM/SAMProb", value == "yes")
+    $h2 : Hypothesis(description == "SAM/money2marketProb", value == "yes")
+then
+    System.out.println("cond prob TAM, SAM, Money");
+    System.out.println($h1.getProbability() * $h2.getProbability());
+    insert(new Hypothesis($h1.getProbability() * $h2.getProbability(), "Market", "yes"));
+end
+
+//rule20
 rule "Probability of market opportunity"
 @LS1(19.0)
 @LN1(1.0)
