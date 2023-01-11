@@ -65,7 +65,6 @@ then
     System.out.println($GOALvalue);
     System.out.println($EXPERTISEvalue);
 
-
     System.out.println($FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GOALvalue, $EXPvalue, $EXPERTISEvalue));
 
     insert(new Conclusion("", $FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GOALvalue, $EXPvalue, $EXPERTISEvalue)));
@@ -79,8 +78,7 @@ when
    $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
    $Conclusion : Conclusion(description=="")
 then
-    System.out.println("rule dummy triggered");
-    System.out.println($Conclusion.getCount()+$FrameProduct.getScore());
+    System.out.println("rule Frame: Product triggered");
     insert(new Conclusion("Frame:Product", $Conclusion.getCount() + $FrameProduct.getScore()));
 end
 
@@ -139,24 +137,34 @@ when
     $interest : Hypothesis(description == "InterestProb", value == "yes")
 then
     System.out.println("cond prob");
-    insert(new Hypothesis($LTV.getProbability() * $interest.getProbability(), "P(Traction|LTVprob|Interest)", "yes"));
+    insert(new Hypothesis($LTV.getProbability() * $interest.getProbability(), "P(Traction|LTV|Interest)", "yes"));
 end
 
 
 rule "Use hypothesis to calculate P(Traction|LTV|Interest)"
-@LS1(9)
+@LS1(9.0)
 @LN1(0.67)
 @LS2(1.5)
 @LN2(0.11)
-salience 1
+salience 10
 when
-    Hypothesis(description == "LTVprob", value == "yes") and
+    Hypothesis(description == "LTVprob", value == "yes")
     Hypothesis(description == "InterestProb", value == "yes")
 then
     System.out.println("Working?");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "P(Traction|LTV|Interest)", "yes").update();
 end
 
+
+rule "Frame: Traction"
+salience 9
+when
+   $Hypothesis : Hypothesis(description == "P(Traction|LTV|Interest)", value == "yes")
+   $Conclusion : Conclusion(description=="Frame:Product")
+then
+    System.out.println("rule Frame: Traction triggered");
+    insert(new Conclusion("Frame:Traction", $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2));
+end
 
 
 rule "Do you have competitors? Yes"
