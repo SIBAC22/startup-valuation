@@ -18,7 +18,6 @@ salience 100
 when
 	Evidence( description == "Do you know what your business needs?", value == "no" )
 then
-	System.out.println("rule Business needs no triggered");
 	insert(new Hypothesis(1.0, "Frame: Product-constrained", "yes"));
 end
 
@@ -30,7 +29,6 @@ when
 	Hypothesis(description == "Frame: Product-constrained", value == "yes")
 	$FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-4]", $value : value )
 then
-    System.out.println("rule Frame: Product triggered");
     insert(new Conclusion("You current succcess probability based on TRL is " + $FrameProduct.getScore() * 100 + "%. Try identifying what your business needs and try again!"));
 end
 
@@ -43,7 +41,6 @@ salience 100
 when
 	Evidence( description == "Do you know what your business needs?", value == "yes" )
 then
-	System.out.println("rule Business needs yes triggered");
 	insert(new Hypothesis(1.0, "Frame: Team", "yes"));
 	insert(new FrameTeam(1.0, "Frame: Team", "yes"));
 end
@@ -62,16 +59,6 @@ when
 	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $ExpertiseVvalue : value )
     $FrameTeam : FrameTeam()
 then
-    System.out.println("rule Frame: Team triggered yes");
-    System.out.println($TSvalue);
-    System.out.println($ASvalue);
-    System.out.println($MSvalue);
-    System.out.println($ExperienceValue);
-    System.out.println($GoalValue);
-    System.out.println($ExpertiseVvalue);
-
-    System.out.println($FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue));
-
     insert(new Conclusion("Frame:Team", $FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue), $FrameTeam.getExplanation($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue)));
     insert(new Hypothesis(1.0, "Frame: Product", "yes"));
 end
@@ -84,7 +71,6 @@ when
    $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
    $Conclusion : Conclusion(description=="Frame:Team")
 then
-    System.out.println("rule Frame: Product triggered");
     insert(new Conclusion("Frame:Product", $Conclusion.getCount() + $FrameProduct.getScore(), $Conclusion.addExplanationToList($Conclusion.getExplanation(), $FrameProduct.getExplanation($FrameProduct.getScore()))));
 end
 
@@ -94,7 +80,6 @@ salience 50
 when
 	Evidence(probability == 1.0, description == "Do you have competitors?", value == "no" )
 then
-	System.out.println("rule competitors triggered no");
 	insert(new Hypothesis(1.0, "Frame: Traction no", "yes"));
 end
 
@@ -105,7 +90,6 @@ when
     Evidence(probability == 1.0, description == "From 1 to 10, how good is your LTV?", $LTVvalue : value)
     Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
 then
-	System.out.println("rule convert probs triggered");
 	insert(new Hypothesis(Double.valueOf($LTVvalue) * 0.1, "LTV", "yes"));
 	insert(new Hypothesis(Double.valueOf($interest) * 0.1, "Interest", "yes"));
 
@@ -121,7 +105,6 @@ salience 29
 when
     Hypothesis(description == "LTV", value == "yes")
 then
-	System.out.println("rule LTV traction triggered");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "LTVprob", "yes").update();
 end
 
@@ -133,7 +116,6 @@ salience 28
 when
     Hypothesis(description == "Interest", value == "yes")
 then
-	System.out.println("rule Interest traction triggered");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "InterestProb", "yes").update();
 end
 
@@ -144,7 +126,6 @@ when
     $LTV : Hypothesis(description == "LTVprob", value == "yes")
     $interest : Hypothesis(description == "InterestProb", value == "yes")
 then
-    System.out.println("cond prob");
     insert(new Hypothesis($LTV.getProbability() * $interest.getProbability(), "P(Traction|LTV|Interest)", "yes"));
 end
 
@@ -159,7 +140,6 @@ when
     Hypothesis(description == "LTVprob", value == "yes")
     Hypothesis(description == "InterestProb", value == "yes")
 then
-    System.out.println("Working?");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "P(Traction|LTV|Interest)", "yes").update();
 end
 
@@ -173,8 +153,6 @@ when
    $LTV : Hypothesis(description == "LTV", value == "yes")
    $Interest : Hypothesis(description == "Interest", value == "yes")
 then
-    System.out.println();
-    System.out.println("rule Frame: Traction triggered");
     double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2;
     insert(new Conclusion("Frame:Traction", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getTractionExplanation($LTV.getProbability(), $Interest.getProbability(), probability))));
 end
@@ -186,7 +164,6 @@ salience 50
 when
 	Evidence(probability == 1.0, description == "Do you have competitors?", value == "yes" )
 then
-	System.out.println("rule competitors triggered yes");
 	insert(new Hypothesis(1.0, "Can you protect your technology?", "yes"));
 end
 
@@ -199,7 +176,6 @@ when
 	Evidence( description == "Can you protect your technology?", value == "yes" )
 	$Conclusion : Conclusion(description=="Frame:Product")
 then
-	System.out.println("rule protect technology triggered yes");
 	double probability = $Conclusion.getCount() + 0.1;
 	insert(new Conclusion("IP", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getProtectYesExplanation(probability))));
 	insert(new Hypothesis(1.0, "Frame: Traction + IP", "yes"));
@@ -215,7 +191,6 @@ when
    $LTV : Hypothesis(description == "LTV", value == "yes")
    $Interest : Hypothesis(description == "Interest", value == "yes")
 then
-    System.out.println("rule Frame: Traction triggered");
     double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2;
     insert(new Conclusion("Frame:Traction", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getTractionExplanation($LTV.getProbability(), $Interest.getProbability(), probability))));
 end
@@ -229,7 +204,6 @@ when
     Evidence(probability==1.0, description == "How much money do you need to enter a market?", $money2market : value )
     Evidence(probability==1.0, description == "What’s your TAM within 5 years?", $TAM : value )
 then
-	System.out.println("rule input SAM & Money triggered");
 	Double SamtoMoney =  Double.valueOf($SAM) / Double.valueOf($money2market);
 	Double TamToSam = Double.valueOf($TAM) / Double.valueOf($SAM);
 	Double probabilitySamtoMoney = SamtoMoney > 9 ? 0.8 : 0.2;
@@ -247,7 +221,6 @@ salience 14
 when
     $Hypothesis : Hypothesis(description == "SAM/money2marketProb", value == "yes")
 then
-    System.out.println("cond prob TAM, SAM, Money");
     insert(new Hypothesis($Hypothesis.getProbability(), "Market", "yes"));
 end
 
@@ -262,7 +235,6 @@ when
     Hypothesis(description == "SAM/money2marketProb", value == "yes")
     Hypothesis(description == "TAM/SAMProb", value == "yes")
 then
-    System.out.println("rule market opportunity prob");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "Market", "yes").update();
 end
 
@@ -275,7 +247,16 @@ when
    $H1 : Hypothesis(description == "SAM/money2market", value == "yes")
    $H2 : Hypothesis(description == "TAM/SAM", value == "yes")
 then
-    System.out.println("rule Frame: Traction triggered");
     Double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.18;
     insert(new Conclusion("Frame:Market", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getOpportunityExplanation(probability, $H1.getProbability(), $H2.getProbability()))));
+    $Conclusion.getExplanation().forEach(System.out::println);
+end
+
+//rule20
+rule "Final conclusion"
+salience 5
+when
+   $Conclusion : Conclusion(description=="Frame:Market")
+then
+    $Conclusion.getExplanation().forEach(System.out::println);
 end

@@ -66,4 +66,5 @@ public class Conclusion extends FactBayes{
     public String getOpportunityExplanation(double probability, double samRatio, double tamRatio) {
         return "Your total accumulated probability of success is " + FORMAT.format(probability * 100) + "%. Your SAM : Money to Market ratio is " + samRatio + ". A ratio above 10 is considered good, as the ROI is the short term is 10x. Your TAM : SAM ratio is " + tamRatio + ". This ratio only serves as weight to the final output probability of your market opportunity. A ratio of above 10 will increase your chances if you scored a low probability in the SAM/Money ratio, as the promise of future opportunity (TAM) is good.";
     }
+
 }
