@@ -5,11 +5,7 @@ public class FrameProduct extends Evidence {
     private double score;
     public FrameProduct(double probability, String description, String value) {
         super(probability, description, value);
-        this.score = calculateTRL(value);
-    }
-
-    public double calculateTRL(String value) {
-        return Float.parseFloat(value)/9 * 0.22;
+        this.score = Float.parseFloat(value)/9 * 0.22;
     }
 
     public double getScore() {
@@ -17,6 +13,6 @@ public class FrameProduct extends Evidence {
     }
 
     public String getExplanation(double score) {
-        return "You current succcess probability based on TRL is " + score * 100 + "%.";
+        return "You current success probability based on TRL is " + score * 100 + "%.";
     }
 }

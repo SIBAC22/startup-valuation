@@ -76,13 +76,11 @@ public class TrackingAgendaListener implements AgendaEventListener {
 	}
 
 	static public FactBayes getFactRef(Class<?> c, String description, String value) {
-		Collection<FactBayes> myfacts = (Collection<FactBayes>) kieSession.getObjects( new ClassObjectFilter(c) );
-		Iterator<FactBayes> iterator = myfacts.iterator();
+		Collection<FactBayes> facts = (Collection<FactBayes>) kieSession.getObjects( new ClassObjectFilter(c) );
+		Iterator<FactBayes> iterator = facts.iterator();
 		while (iterator.hasNext()) {
 			FactBayes fact = iterator.next();
-			String factDesc = fact.getDescription();
-			String factVal = fact.getValue();
-			if (factDesc.compareTo(description) == 0 && factVal.compareTo(value) == 0) {
+			if (fact.getDescription().compareTo(description) == 0 && fact.getValue().compareTo(value) == 0) {
 				return fact;
 			}
 		}

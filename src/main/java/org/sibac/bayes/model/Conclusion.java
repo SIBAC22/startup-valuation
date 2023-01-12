@@ -32,6 +32,7 @@ public class Conclusion extends FactBayes{
     public String getDescription() {
         return description;
     }
+
     public Double getCount() {
         return scoreCount;
     }
