@@ -230,12 +230,10 @@ when
     Evidence(probability==1.0, description == "What’s your TAM within 5 years?", $TAM : value )
 then
 	System.out.println("rule input SAM & Money triggered");
-	Double probabilitySamtoMoney =  Double.valueOf($SAM) / Double.valueOf($money2market) > 9 ? 0.8 : 0.2;
-	Double probabilityTamToSam = Double.valueOf($TAM) / Double.valueOf($SAM) > 9 ? 1.0 : 0.0;
+	double probabilitySamtoMoney =  Double.valueOf($SAM) / Double.valueOf($money2market) > 9 ? 0.8 : 0.2;
+	double probabilityTamToSam = Double.valueOf($TAM) / Double.valueOf($SAM) > 9 ? 1.0 : 0.0;
 
-//	insert(new Hypothesis(probabilitySamtoMoney, "SAM/money2market", "yes"));
 	insert(new Hypothesis(probabilitySamtoMoney, "SAM/money2marketProb", "yes"));
-//	insert(new Hypothesis(probabilityTamToSam, "TAM/SAM", "yes"));
 	insert(new Hypothesis(probabilityTamToSam, "TAM/SAMProb", "yes"));
 end
 
