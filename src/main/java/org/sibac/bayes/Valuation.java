@@ -7,13 +7,9 @@ import org.sibac.bayes.listeners.FactListener;
 import org.sibac.bayes.listeners.TrackingAgendaListener;
 import org.sibac.bayes.model.*;
 
+public class Valuation {
 
-/**
- * This is a sample class to launch a rule.
- */
-public class DroolsTest {
-
-	public static final void main(String[] args) {
+	public static void main(String[] args) {
 		try {
 			// load up the knowledge base
 			KieServices ks = KieServices.Factory.get();
@@ -26,29 +22,28 @@ public class DroolsTest {
 			// Facts listener
 			kSession.addEventListener(new FactListener());
 
-			// go !
 			//can be yes or no
 			kSession.insert(new Evidence(1.0, "Do you know what your business needs?", "yes"));
 
 			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-4]", "4" ));
 
 			kSession.insert(new Evidence(1.0, "Do you have the technical skills?", "yes"));
-			kSession.insert(new Evidence(1.0, "Do you have the analytical skills?", "yes"));
-			kSession.insert(new Evidence(1.0, "Do you have the marketing skills?", "no"));
+			kSession.insert(new Evidence(1.0, "Do you have the analytical skills?", "no"));
+			kSession.insert(new Evidence(1.0, "Do you have the marketing skills?", "yes"));
 			kSession.insert(new Evidence(1.0, "Do you have previous experience as a team?", "yes"));
 			kSession.insert(new Evidence(1.0, "Are your personal goals aligned with the start-up vision?", "yes"));
-			kSession.insert(new Evidence(1.0, "Do your team or advisors have industry expertise?", "no"));
+			kSession.insert(new Evidence(1.0, "Do your team or advisors have industry expertise?", "yes"));
 
 			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-9]", "9" ));
 
 			//this can be either yes or no
-			kSession.insert(new Evidence(1.0, "Do you have competitors?", "no"));
+			kSession.insert(new Evidence(1.0, "Do you have competitors?", "yes"));
 
 			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your LTV?", "9"));
 			kSession.insert(new Evidence(1.0, "From 1 to 10, how good is your engagement rate?", "10"));
 
 
-			kSession.insert(new Evidence(1.0, "Can you protect your technology?", "no"));
+			kSession.insert(new Evidence(1.0, "Can you protect your technology?", "yes"));
 
 			kSession.insert(new Evidence(1.0, "What’s your SAM within 5 years?", "100"));
 			kSession.insert(new Evidence(1.0, "How much money do you need to enter a market?", "10"));

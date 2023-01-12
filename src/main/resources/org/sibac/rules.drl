@@ -9,46 +9,55 @@ import org.sibac.bayes.model.FrameProduct
 import org.sibac.bayes.model.FrameTeam
 import java.util.ArrayList
 import java.util.List
-import java.util.Arrays;
-//rule1
-rule "Do you know your needs? No"
+import java.util.Arrays
+import java.util.HashSet
+import java.util.stream.Collectors;
 
+/*
+ RULE 1 - Do you know your needs? No
+*/
+rule "Do you know your needs? No"
 salience 100
-/*lock-on-active true*/
 when
 	Evidence( description == "Do you know what your business needs?", value == "no" )
 then
 	insert(new Hypothesis(1.0, "Frame: Product-constrained", "yes"));
+	insert(new Conclusion("Needs no"));
 end
 
-//rule2
+/*
+ RULE 2 - Frame:Product-constrained, what is your TRL?
+*/
 rule "Frame:Product-constrained, what is your TRL?"
 salience 80
-/*lock-on-active true*/
 when
 	Hypothesis(description == "Frame: Product-constrained", value == "yes")
 	$FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-4]", $value : value )
+	$Conclusion : Conclusion(description=="Needs no")
 then
-    insert(new Conclusion("You current succcess probability based on TRL is " + $FrameProduct.getScore() * 100 + "%. Try identifying what your business needs and try again!"));
+    Double probability = $FrameProduct.getScore();
+    insert(new Conclusion("Frame:Product-constrained", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.setBusinessNeedsNoExplanation($FrameProduct.getScore()))));
 end
 
 
-//rule3
+/*
+ RULE 3 - Do you know your needs? Yes
+*/
 rule "Do you know your needs? Yes"
-
 salience 100
-/*lock-on-active true*/
 when
 	Evidence( description == "Do you know what your business needs?", value == "yes" )
 then
 	insert(new Hypothesis(1.0, "Frame: Team", "yes"));
 	insert(new FrameTeam(1.0, "Frame: Team", "yes"));
+	insert(new Conclusion("Needs yes"));
 end
 
-//rule4
+/*
+ RULE 4 - Frame: Team
+*/
 rule "Frame: Team"
 salience 80
-/*lock-on-active true*/
 when
 	Hypothesis(description == "Frame: Team", value == "yes")
 	$TS : Evidence(probability==1.0, description == "Do you have the technical skills?", $TSvalue : value )
@@ -57,13 +66,16 @@ when
 	$Experience : Evidence(probability==1.0, description == "Do you have previous experience as a team?", $ExperienceValue : value )
 	$Goals : Evidence(probability==1.0, description == "Are your personal goals aligned with the start-up vision?", $GoalValue : value )
 	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $ExpertiseVvalue : value )
+    $Conclusion : Conclusion(description=="Needs yes")
     $FrameTeam : FrameTeam()
 then
-    insert(new Conclusion("Frame:Team", $FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue), $FrameTeam.getExplanation($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue)));
+    insert(new Conclusion("Frame:Team", $FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue), $Conclusion.addExplanationListToList(new ArrayList<String>(), $FrameTeam.getExplanation($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue))));
     insert(new Hypothesis(1.0, "Frame: Product", "yes"));
 end
 
-//rule5
+/*
+ RULE 5 - Frame: Product, what is your TRL?
+*/
 rule "Frame: Product, what is your TRL?"
 salience 60
 when
@@ -71,10 +83,13 @@ when
    $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
    $Conclusion : Conclusion(description=="Frame:Team")
 then
-    insert(new Conclusion("Frame:Product", $Conclusion.getCount() + $FrameProduct.getScore(), $Conclusion.addExplanationToList($Conclusion.getExplanation(), $FrameProduct.getExplanation($FrameProduct.getScore()))));
+    Double probability = $Conclusion.getCount() + $FrameProduct.getScore();
+    insert(new Conclusion("Frame:Product", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $FrameProduct.getExplanation(probability))));
 end
 
-//rule6
+/*
+ RULE 6 - Do you have competitors? No branch
+*/
 rule "Do you have competitors? No"
 salience 50
 when
@@ -83,22 +98,26 @@ then
 	insert(new Hypothesis(1.0, "Frame: Traction no", "yes"));
 end
 
-//rule7
+/*
+ RULE 7 - Convert TractionEvidence values to probabilities
+*/
 rule "Convert TractionEvidence values to probabilities"
 salience 30
 when
-    Evidence(probability == 1.0, description == "From 1 to 10, how good is your LTV?", $LTVvalue : value)
+    Evidence(probability == 1.0, description == "From 1 to 10, how good is your LTV?", $LTV : value)
     Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
 then
-	insert(new Hypothesis(Double.valueOf($LTVvalue) * 0.1, "LTV", "yes"));
+	insert(new Hypothesis(Double.valueOf($LTV) * 0.1, "LTV", "yes"));
 	insert(new Hypothesis(Double.valueOf($interest) * 0.1, "Interest", "yes"));
 
-	insert(new Hypothesis(Double.valueOf($LTVvalue) * 0.1, "LTVprob", "yes"));
+	insert(new Hypothesis(Double.valueOf($LTV) * 0.1, "LTVprob", "yes"));
 	insert(new Hypothesis(Double.valueOf($interest) * 0.1, "InterestProb", "yes"));
 end
 
-//rule8
-rule "Use hypothesis to calculate P(Traction|LTV)"
+/*
+ RULE 8 - Calculate hypothesis entitled P(Traction|LTV)
+*/
+rule "Calculate hypothesis entitled P(Traction|LTV)"
 @LS1(4.0)
 @LN1(2.5)
 salience 29
@@ -108,8 +127,10 @@ then
     TrackingAgendaListener.getFactRef(Hypothesis.class, "LTVprob", "yes").update();
 end
 
-//rule9
-rule "Use hypothesis to calculate P(Traction|Interest)"
+/*
+ RULE 9 - Calculate hypothesis entitled P(Traction|Interest)
+*/
+rule "Calculate hypothesis entitled P(Traction|Interest)"
 @LS1(9.0)
 @LN1(0.11)
 salience 28
@@ -119,8 +140,10 @@ then
     TrackingAgendaListener.getFactRef(Hypothesis.class, "InterestProb", "yes").update();
 end
 
-//rule10
-rule "Create hypotehsis that holds conditional prob of P(interest)*P(LTV)"
+/*
+ RULE 10 - Creation of hypotehsis that holds conditional probability of P(interest)*P(LTV)
+*/
+rule "Creation of hypotehsis that holds conditional probability of P(interest)*P(LTV)"
 salience 27
 when
     $LTV : Hypothesis(description == "LTVprob", value == "yes")
@@ -129,8 +152,10 @@ then
     insert(new Hypothesis($LTV.getProbability() * $interest.getProbability(), "P(Traction|LTV|Interest)", "yes"));
 end
 
-//rule11
-rule "Use hypothesis to calculate P(Traction|LTV|Interest)"
+/*
+ RULE 11 - Calculate hypothesis entitled P(Traction|LTV|Interest)
+*/
+rule "Calculate hypothesis entitled P(Traction|LTV|Interest)"
 @LS1(9.0)
 @LN1(0.67)
 @LS2(1.5)
@@ -143,7 +168,9 @@ then
     TrackingAgendaListener.getFactRef(Hypothesis.class, "P(Traction|LTV|Interest)", "yes").update();
 end
 
-//rule12
+/*
+ RULE 12 - Do you have competitors? No-branch. Frame: Traction
+*/
 rule "Frame: Traction"
 salience 20
 when
@@ -153,12 +180,13 @@ when
    $LTV : Hypothesis(description == "LTV", value == "yes")
    $Interest : Hypothesis(description == "Interest", value == "yes")
 then
-    double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2;
-    insert(new Conclusion("Frame:Traction", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getTractionExplanation($LTV.getProbability(), $Interest.getProbability(), probability))));
+    Double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2;
+    insert(new Conclusion("Frame:Traction", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.setTractionExplanation($LTV.getProbability(), $Interest.getProbability(), probability))));
 end
 
-
-//rule13
+/*
+ RULE 13 - Do you have competitors? Yes
+*/
 rule "Do you have competitors? Yes"
 salience 50
 when
@@ -167,8 +195,9 @@ then
 	insert(new Hypothesis(1.0, "Can you protect your technology?", "yes"));
 end
 
-
-//rule14
+/*
+ RULE 14 - Can you protect your technology? Yes
+*/
 rule "Can you protect your technology? Yes"
 salience 40
 when
@@ -176,14 +205,16 @@ when
 	Evidence( description == "Can you protect your technology?", value == "yes" )
 	$Conclusion : Conclusion(description=="Frame:Product")
 then
-	double probability = $Conclusion.getCount() + 0.1;
-	insert(new Conclusion("IP", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getProtectYesExplanation(probability))));
+	Double probability = $Conclusion.getCount() + 0.1;
+	insert(new Conclusion("IP", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.setProtectYesExplanation(probability))));
 	insert(new Hypothesis(1.0, "Frame: Traction + IP", "yes"));
 end
 
-//rule15 same as 12
+/*
+ RULE 15 - Frame: Traction when IP is set to YES branch
+*/
 rule "Frame: Traction + IP"
-salience 35
+salience 20
 when
    Hypothesis(description == "Frame: Traction + IP", value =="yes")
    $Hypothesis : Hypothesis(description == "P(Traction|LTV|Interest)", value == "yes")
@@ -191,13 +222,14 @@ when
    $LTV : Hypothesis(description == "LTV", value == "yes")
    $Interest : Hypothesis(description == "Interest", value == "yes")
 then
-    double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2;
-    insert(new Conclusion("Frame:Traction", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getTractionExplanation($LTV.getProbability(), $Interest.getProbability(), probability))));
+    Double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.2;
+    insert(new Conclusion("Frame:Traction", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.setTractionExplanation($LTV.getProbability(), $Interest.getProbability(), probability))));
 end
 
-
-//rule16
-rule "Input SAM and MoneyToMarket values to ratio"
+/*
+ RULE 16 - Variables SAM and MoneyToMarket values to ratio value
+*/
+rule "Variables SAM and MoneyToMarket values to ratio value"
 salience 15
 when
     Evidence(probability==1.0, description == "What’s your SAM within 5 years?", $SAM : value )
@@ -215,8 +247,10 @@ then
 	insert(new Hypothesis(probabilityTamToSam, "TAM/SAMProb", "yes"));
 end
 
-//rule17
-rule "Create hypothesis Market that holds prob of SAM/Money > 9?"
+/*
+ RULE 17 - Creation of hypothesis Market that holds prob of SAM/Money > 9
+*/
+rule "Creation of hypothesis Market that holds prob of SAM/Money > 9"
 salience 14
 when
     $Hypothesis : Hypothesis(description == "SAM/money2marketProb", value == "yes")
@@ -224,7 +258,9 @@ then
     insert(new Hypothesis($Hypothesis.getProbability(), "Market", "yes"));
 end
 
-//rule18
+/*
+ RULE 18 - Probability of market opportunity - sets the weights for SAM/Money and TAM/SAM
+*/
 rule "Probability of market opportunity"
 @LS1(9.0)
 @LN1(1.0)
@@ -238,25 +274,39 @@ then
     TrackingAgendaListener.getFactRef(Hypothesis.class, "Market", "yes").update();
 end
 
-//rule19
-rule "Frame: Market"
+/*
+ RULE 19 - Frame: Market-opportunity - sets a whole explanation list
+*/
+rule "Frame: Market-opportunity"
 salience 10
 when
-   $Hypothesis : Hypothesis(description == "Market", value == "yes")
-   $Conclusion : Conclusion(description=="Frame:Traction")
-   $H1 : Hypothesis(description == "SAM/money2market", value == "yes")
-   $H2 : Hypothesis(description == "TAM/SAM", value == "yes")
+    $Hypothesis : Hypothesis(description == "Market", value == "yes")
+    $Conclusion : Conclusion(description=="Frame:Traction")
+    $H1 : Hypothesis(description == "SAM/money2market", value == "yes")
+    $H2 : Hypothesis(description == "TAM/SAM", value == "yes")
 then
     Double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.18;
-    insert(new Conclusion("Frame:Market", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getOpportunityExplanation(probability, $H1.getProbability(), $H2.getProbability()))));
+    insert(new Conclusion("Frame:Market", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.setOpportunityExplanation(probability, $H1.getProbability(), $H2.getProbability()))));
+end
+
+/*
+ RULE 20 - Final conclusion - Print
+*/
+rule "Final conclusion. Print"
+salience 5
+when
+    $Conclusion : Conclusion(description=="Frame:Market")
+then
     $Conclusion.getExplanation().forEach(System.out::println);
 end
 
-//rule20
-rule "Final conclusion"
-salience 5
+/*
+ RULE 21 - Do you know your needs? no - Print
+*/
+rule "Do you know your need? Print"
+salience 4
 when
-   $Conclusion : Conclusion(description=="Frame:Market")
+   $Conclusion : Conclusion(description=="Frame:Product-constrained")
 then
     $Conclusion.getExplanation().forEach(System.out::println);
 end

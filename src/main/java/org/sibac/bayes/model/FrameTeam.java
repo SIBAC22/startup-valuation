@@ -1,13 +1,13 @@
 package org.sibac.bayes.model;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class FrameTeam extends Evidence {
 
     private static final String YES = "yes";
     private static final String NO = "no";
+    private static final double FIVE_PERCENTAGE = 0.05;
 
 
     public FrameTeam(double probability, String description, String value) {
@@ -23,8 +23,8 @@ public class FrameTeam extends Evidence {
         else if (goals.equals(NO) && experience.equals(YES) && expertise.equals(NO)) explanation.add("You should revise if your goals are aligned with company visions and should consider expertise in the field.");
         else if (goals.equals(NO) && experience.equals(NO) && expertise.equals(YES)) explanation.add("You should revise if your goals are aligned with company visions and should consider experience and expertise in the field.");
         else if (goals.equals(NO) && experience.equals(YES) && expertise.equals(YES)) explanation.add("You should revise if your goals are aligned with company visions.");
-
         else if(explanation.isEmpty()) explanation.add("Your team is not prepared for what you have in mind.");
+        else explanation.add("");
 
         return explanation;
     }
@@ -38,6 +38,7 @@ public class FrameTeam extends Evidence {
         else if (technicalSkills.equals(YES)) explanation.add("You should consider expanding your Marketing and Analytical skills.");
         else if (analyticalSkills.equals(YES)) explanation.add("You should consider expanding your Marketing and Technical skills.");
         else if (marketingSkills.equals(YES)) explanation.add("You should consider expanding your Technical and Analytical skills.");
+        else explanation.add("");
 
         return explanation;
     }
@@ -45,9 +46,9 @@ public class FrameTeam extends Evidence {
 
     public double calculateTeamScore(String technicalSkills, String analyticalSkills, String marketingSkills, String goals, String experience, String expertise) {
         double score = calculateTeamSkills(technicalSkills, analyticalSkills, marketingSkills);
-        if(goals.equals(YES)) score += 0.05;
-        if(experience.equals(YES)) score += 0.05;
-        if(expertise.equals(YES)) score += 0.05;
+        if(goals.equals(YES)) score += FIVE_PERCENTAGE;
+        if(experience.equals(YES)) score += FIVE_PERCENTAGE;
+        if(expertise.equals(YES)) score += FIVE_PERCENTAGE;
 
         return score;
     }
