@@ -9,5 +9,4 @@ public class Evidence extends FactBayes{
 	public String toString() {
 		return super.toString();
 	}
-
 }

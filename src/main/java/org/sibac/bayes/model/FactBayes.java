@@ -14,7 +14,6 @@ public class FactBayes implements Comparable<FactBayes>, Uncertainty {
 	private double probability;
 	private String description;
 	private String value;
-	private Double doubleValue;
 
 	public static void update(Class c, String description, String value) {
 		Collection<Object> myfacts = (Collection<Object>) TrackingAgendaListener.getKieSession().getObjects( new ClassObjectFilter(c) );
@@ -61,9 +60,6 @@ public class FactBayes implements Comparable<FactBayes>, Uncertainty {
 	public String getValue() {
 		return this.value;
 	}
-	public Double getDouble() {
-		return this.doubleValue;
-	}
 
 	public void setValue(String value) {
 		this.value = value;
@@ -96,7 +92,7 @@ public class FactBayes implements Comparable<FactBayes>, Uncertainty {
 		FactHandle fHandle = TrackingAgendaListener.getKieSession().getFactHandle(this);
 
 		// get map with LHS evidences' probabilities
-		List<Double> lhsProbabilities = TrackingAgendaListener.getLHSprobabilities();
+		List<Double> lhsProbabilities = TrackingAgendaListener.getLHSProbabilities();
 
 		if (TrackingAgendaListener.getRuleType() == RuleType.PROBABILISTIC) {
 			// get map with LS and LN values
@@ -156,8 +152,6 @@ public class FactBayes implements Comparable<FactBayes>, Uncertainty {
 	//Probability 1.0 can not be substituted so we are using 99.99 instead by the limits of 1.0 approximated by 0.99...
 	private double prob2odd(double prob) { return prob == 1.0 ? 99.99 : prob / (1 - prob); }
 
-	private double odd2prob(double odd) {
-		return odd / (odd + 1);
-	}
+	private double odd2prob(double odd) { return odd / (odd + 1); }
 
 }

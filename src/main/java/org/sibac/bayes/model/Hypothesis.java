@@ -9,5 +9,4 @@ public class Hypothesis extends FactBayes{
 	public String toString() {
 		return super.toString();
 	}
-
 }

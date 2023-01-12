@@ -25,5 +25,4 @@ public class Conclusion extends FactBayes{
     public String toString() {
         return ("Conclusion: " + description + " " + scoreCount);
     }
-
 }

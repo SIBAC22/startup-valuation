@@ -20,7 +20,6 @@ import org.kie.api.runtime.ClassObjectFilter;
 import org.kie.api.runtime.KieSession;
 import org.sibac.bayes.model.FactBayes;
 
-
 public class TrackingAgendaListener implements AgendaEventListener {
 
 	private static KieSession kieSession;
@@ -49,7 +48,7 @@ public class TrackingAgendaListener implements AgendaEventListener {
 		return rType;
 	}
 
-	static public List<Double> getLHSprobabilities() {
+	static public List<Double> getLHSProbabilities() {
 		ArrayList<Double> probabilityList = new ArrayList<>();
 		for(int i=0; i<activations.size(); i++) {
 			FactBayes fact = (FactBayes)activations.get(i);
@@ -103,40 +102,25 @@ public class TrackingAgendaListener implements AgendaEventListener {
 	public TrackingAgendaListener() {
 		super();
 		TrackingAgendaListener.kieSession = null;
-		TrackingAgendaListener.activations = new ArrayList<Object>();
+		TrackingAgendaListener.activations = new ArrayList<>();
 		TrackingAgendaListener.ruleName = null;
-		TrackingAgendaListener.metaData = new HashMap<String, Object>();
+		TrackingAgendaListener.metaData = new HashMap<>();
 	}
 
 	@Override
-	public void afterMatchFired(AfterMatchFiredEvent event) {
-		// Clear activation object list to the next activation
-		TrackingAgendaListener.activations.clear();
-	}
+	public void afterMatchFired(AfterMatchFiredEvent event) { TrackingAgendaListener.activations.clear(); }
 
 	@Override
-	public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void afterRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) { }
 
 	@Override
-	public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void afterRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) { }
 
 	@Override
-	public void agendaGroupPopped(AgendaGroupPoppedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void agendaGroupPopped(AgendaGroupPoppedEvent event) { }
 
 	@Override
-	public void agendaGroupPushed(AgendaGroupPushedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void agendaGroupPushed(AgendaGroupPushedEvent event) { }
 
 	@Override
 	public void beforeMatchFired(BeforeMatchFiredEvent event) {
@@ -153,27 +137,15 @@ public class TrackingAgendaListener implements AgendaEventListener {
 	}
 
 	@Override
-	public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void beforeRuleFlowGroupActivated(RuleFlowGroupActivatedEvent event) { }
 
 	@Override
-	public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void beforeRuleFlowGroupDeactivated(RuleFlowGroupDeactivatedEvent event) { }
 
 	@Override
-	public void matchCancelled(MatchCancelledEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void matchCancelled(MatchCancelledEvent event) { }
 
 	@Override
-	public void matchCreated(MatchCreatedEvent event) {
-		// TODO Auto-generated method stub
-
-	}
+	public void matchCreated(MatchCreatedEvent event) { }
 
 }
