@@ -57,22 +57,22 @@ when
 	$TS : Evidence(probability==1.0, description == "Do you have the technical skills?", $TSvalue : value )
 	$AS : Evidence(probability==1.0, description == "Do you have the analytical skills?", $ASvalue : value )
 	$MS : Evidence(probability==1.0, description == "Do you have the marketing skills?", $MSvalue : value )
-	$Experience : Evidence(probability==1.0, description == "Do you have previous experience as a team?", $EXPvalue : value )
-	$Goals : Evidence(probability==1.0, description == "Are your personal goals aligned with the start-up vision?", $GOALvalue : value )
-	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $EXPERTISEvalue : value )
+	$Experience : Evidence(probability==1.0, description == "Do you have previous experience as a team?", $ExperienceValue : value )
+	$Goals : Evidence(probability==1.0, description == "Are your personal goals aligned with the start-up vision?", $GoalValue : value )
+	$Expertise : Evidence(probability==1.0, description == "Do your team or advisors have industry expertise?", $ExpertiseVvalue : value )
     $FrameTeam : FrameTeam()
 then
     System.out.println("rule Frame: Team triggered yes");
     System.out.println($TSvalue);
     System.out.println($ASvalue);
     System.out.println($MSvalue);
-    System.out.println($EXPvalue);
-    System.out.println($GOALvalue);
-    System.out.println($EXPERTISEvalue);
+    System.out.println($ExperienceValue);
+    System.out.println($GoalValue);
+    System.out.println($ExpertiseVvalue);
 
-    System.out.println($FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GOALvalue, $EXPvalue, $EXPERTISEvalue));
+    System.out.println($FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue));
 
-    insert(new Conclusion("", $FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GOALvalue, $EXPvalue, $EXPERTISEvalue)));
+    insert(new Conclusion("Frame:Team", $FrameTeam.calculateTeamScore($TSvalue, $ASvalue, $MSvalue, $GoalValue, $ExperienceValue, $ExpertiseVvalue)));
     insert(new Hypothesis(1.0, "Frame: Product", "yes"));
 end
 
@@ -82,7 +82,7 @@ salience 50
 when
    Hypothesis(description == "Frame: Product", value == "yes")
    $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
-   $Conclusion : Conclusion(description=="")
+   $Conclusion : Conclusion(description=="Frame:Team")
 then
     System.out.println("rule Frame: Product triggered");
     insert(new Conclusion("Frame:Product", $Conclusion.getCount() + $FrameProduct.getScore()));
@@ -221,22 +221,23 @@ when
     Evidence(probability==1.0, description == "What’s your TAM within 5 years?", $TAM : value )
 then
 	System.out.println("rule input SAM & Money triggered");
-	if (Double.valueOf($SAM)/Double.valueOf($money2market) > 9) { insert(new Hypothesis(0.8, "SAM/money2market", "yes")); insert(new Hypothesis(0.8, "SAM/money2marketProb", "yes")); }
-	else { insert(new Hypothesis(0.2, "SAM/money2market", "yes")); insert(new Hypothesis(0.2, "SAM/money2marketProb", "yes")); }
+	Double probabilitySamtoMoney =  Double.valueOf($SAM) / Double.valueOf($money2market) > 9 ? 0.8 : 0.2;
+	Double probabilityTamToSam = Double.valueOf($TAM) / Double.valueOf($SAM) > 9 ? 1.0 : 0.0;
 
-	if (Double.valueOf($TAM)/Double.valueOf($SAM) > 9) { insert(new Hypothesis(1.0, "TAM/SAM", "yes")); insert(new Hypothesis(1.0, "TAM/SAMProb", "yes")); }
-    else { insert(new Hypothesis(0.0, "TAM/SAM", "yes")); insert(new Hypothesis(0.0, "TAM/SAMProb", "yes")); }
+//	insert(new Hypothesis(probabilitySamtoMoney, "SAM/money2market", "yes"));
+	insert(new Hypothesis(probabilitySamtoMoney, "SAM/money2marketProb", "yes"));
+//	insert(new Hypothesis(probabilityTamToSam, "TAM/SAM", "yes"));
+	insert(new Hypothesis(probabilityTamToSam, "TAM/SAMProb", "yes"));
 end
-
 
 //rule17
 rule "Create hypothesis Market that holds prob of SAM/Money > 9?"
 salience 5
 when
-    $h2 : Hypothesis(description == "SAM/money2marketProb", value == "yes")
+    $Hypothesis : Hypothesis(description == "SAM/money2marketProb", value == "yes")
 then
     System.out.println("cond prob TAM, SAM, Money");
-    insert(new Hypothesis($h2.getProbability(), "Market", "yes"));
+    insert(new Hypothesis($Hypothesis.getProbability(), "Market", "yes"));
 end
 
 //rule18
@@ -252,14 +253,12 @@ when
 then
     System.out.println("rule market opportunity prob");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "Market", "yes").update();
-
 end
 
 //rule19
 rule "Frame: Market"
 salience 9
 when
-
    $Hypothesis : Hypothesis(description == "Market", value == "yes")
    $Conclusion : Conclusion(description=="Frame:Traction")
 then
