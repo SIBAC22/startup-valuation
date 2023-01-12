@@ -78,7 +78,7 @@ end
 
 //rule5
 rule "Frame: Product, what is your TRL?"
-salience 50
+salience 60
 when
    Hypothesis(description == "Frame: Product", value == "yes")
    $FrameProduct : FrameProduct(probability==1.0, description == "What is your TRL? [value 1-9]", $value : value )
@@ -90,7 +90,7 @@ end
 
 //rule6
 rule "Do you have competitors? No"
-salience 40
+salience 50
 when
 	Evidence(probability == 1.0, description == "Do you have competitors?", value == "no" )
 then
@@ -100,7 +100,7 @@ end
 
 //rule7
 rule "Convert TractionEvidence values to probabilities"
-salience 40
+salience 30
 when
     Evidence(probability == 1.0, description == "From 1 to 10, how good is your LTV?", $LTVvalue : value)
     Evidence(probability == 1.0, description == "From 1 to 10, how good is your engagement rate?", $interest : value)
@@ -117,7 +117,7 @@ end
 rule "Use hypothesis to calculate P(Traction|LTV)"
 @LS1(4.0)
 @LN1(2.5)
-salience 30
+salience 29
 when
     Hypothesis(description == "LTV", value == "yes")
 then
@@ -129,7 +129,7 @@ end
 rule "Use hypothesis to calculate P(Traction|Interest)"
 @LS1(9.0)
 @LN1(0.11)
-salience 30
+salience 28
 when
     Hypothesis(description == "Interest", value == "yes")
 then
@@ -139,7 +139,7 @@ end
 
 //rule10
 rule "Create hypotehsis that holds conditional prob of P(interest)*P(LTV)"
-salience 25
+salience 27
 when
     $LTV : Hypothesis(description == "LTVprob", value == "yes")
     $interest : Hypothesis(description == "InterestProb", value == "yes")
@@ -154,7 +154,7 @@ rule "Use hypothesis to calculate P(Traction|LTV|Interest)"
 @LN1(0.67)
 @LS2(1.5)
 @LN2(0.11)
-salience 10
+salience 25
 when
     Hypothesis(description == "LTVprob", value == "yes")
     Hypothesis(description == "InterestProb", value == "yes")
@@ -165,7 +165,7 @@ end
 
 //rule12
 rule "Frame: Traction"
-salience 9
+salience 20
 when
    Hypothesis(description == "Frame: Traction no", value== "yes")
    $Hypothesis : Hypothesis(description == "P(Traction|LTV|Interest)", value == "yes")
@@ -182,7 +182,7 @@ end
 
 //rule13
 rule "Do you have competitors? Yes"
-salience 20
+salience 50
 when
 	Evidence(probability == 1.0, description == "Do you have competitors?", value == "yes" )
 then
@@ -193,7 +193,7 @@ end
 
 //rule14
 rule "Can you protect your technology? Yes"
-salience 20
+salience 40
 when
 	Hypothesis(description == "Can you protect your technology?", value == "yes" )
 	Evidence( description == "Can you protect your technology?", value == "yes" )
@@ -207,7 +207,7 @@ end
 
 //rule15 same as 12
 rule "Frame: Traction + IP"
-salience 9
+salience 35
 when
    Hypothesis(description == "Frame: Traction + IP", value =="yes")
    $Hypothesis : Hypothesis(description == "P(Traction|LTV|Interest)", value == "yes")
@@ -223,7 +223,7 @@ end
 
 //rule16
 rule "Input SAM and MoneyToMarket values to ratio"
-salience 8
+salience 15
 when
     Evidence(probability==1.0, description == "What’s your SAM within 5 years?", $SAM : value )
     Evidence(probability==1.0, description == "How much money do you need to enter a market?", $money2market : value )
@@ -243,7 +243,7 @@ end
 
 //rule17
 rule "Create hypothesis Market that holds prob of SAM/Money > 9?"
-salience 5
+salience 14
 when
     $Hypothesis : Hypothesis(description == "SAM/money2marketProb", value == "yes")
 then
@@ -257,7 +257,7 @@ rule "Probability of market opportunity"
 @LN1(1.0)
 @LS2(0.67)
 @LN2(0.11)
-salience 1
+salience 13
 when
     Hypothesis(description == "SAM/money2marketProb", value == "yes")
     Hypothesis(description == "TAM/SAMProb", value == "yes")
@@ -268,7 +268,7 @@ end
 
 //rule19
 rule "Frame: Market"
-salience 9
+salience 10
 when
    $Hypothesis : Hypothesis(description == "Market", value == "yes")
    $Conclusion : Conclusion(description=="Frame:Traction")
