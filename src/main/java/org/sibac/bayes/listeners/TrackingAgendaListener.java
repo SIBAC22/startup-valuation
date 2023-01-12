@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.kie.api.event.rule.AfterMatchFiredEvent;
 import org.kie.api.event.rule.AgendaEventListener;
@@ -32,42 +33,31 @@ public class TrackingAgendaListener implements AgendaEventListener {
 		return kieSession;
 	}
 
-	static public List<Object> getActivations() {
-		return activations;
-	}
-
-	static public String getRuleName() {
-		return ruleName;
-	}
-
-	static public Map<String, Object> getMetaData() {
-		return metaData;
-	}
-
 	static public RuleType getRuleType() {
 		return rType;
 	}
 
 	static public List<Double> getLHSProbabilities() {
 		ArrayList<Double> probabilityList = new ArrayList<>();
-		for(int i=0; i<activations.size(); i++) {
-			FactBayes fact = (FactBayes)activations.get(i);
+
+		IntStream.range(0, activations.size()).forEach(index -> {
+			FactBayes fact = (FactBayes)activations.get(index);
 			probabilityList.add(fact.getProbability());
-		}
+		});
+
 		return probabilityList;
 	}
 
 	static public Map<String, Double> getSupportFactors() throws Exception {
-		Map<String, Double> supportFactors = new HashMap<>();
 
+		if (TrackingAgendaListener.activations.size() * 2 != metaData.size()) {
+			throw new Exception(ruleName + ": " + "Number of pairs LS,LN different from number of premises in LHS");
+		}
+
+		Map<String, Double> supportFactors = new HashMap<>();
 		if (TrackingAgendaListener.rType == RuleType.DETERMINISTIC) {
 			return supportFactors;
 		}
-
-		if (TrackingAgendaListener.activations.size() * 2 != metaData.size()) {
-			throw new Exception(ruleName + ": " + "Number of pairs LS,LN diferent from number of premises in LHS");
-		}
-
 
 		for (int i=1; i <= TrackingAgendaListener.activations.size(); i++) {
 			if (metaData.containsKey("LS" + i)) {

@@ -15,4 +15,8 @@ public class FrameProduct extends Evidence {
     public double getScore() {
         return score;
     }
+
+    public String getExplanation(double score) {
+        return "You current succcess probability based on TRL is " + score * 100 + "%.";
+    }
 }
