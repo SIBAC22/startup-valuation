@@ -48,10 +48,10 @@ public class Conclusion extends FactBayes{
         this.explanation = explanation;
     }
 
-    public List<String> addExplanationToList(List<String> list, String explanation) {
-        List<String> list1 = new ArrayList<>(list);
-        list1.add(explanation);
-        return list1;
+    public List<String> addExplanationToList(List<String> previousList, String explanation) {
+        List<String> copy = new ArrayList<>(previousList);
+        copy.add(explanation);
+        return copy;
     }
 
     public String getTractionExplanation(double ltv, double interest, double probability){
@@ -60,5 +60,9 @@ public class Conclusion extends FactBayes{
 
     public String getProtectYesExplanation(double probability) {
         return "You seem to have thoughts about patents or other forms of intellectual property protection. Success probability is " + FORMAT.format(probability * 100) + "%. ";
+    }
+
+    public String getOpportunityExplanation(double probability, double samRatio, double tamRatio) {
+        return "Your total accumulated probability of success is " + FORMAT.format(probability * 100) + "%. Your SAM : Money to Market ratio is " + samRatio + ". A ratio above 10 is considered good, as the ROI is the short term is 10x. Your TAM : SAM ratio is " + tamRatio + ". This ratio only serves as weight to the final output probability of your market opportunity. A ratio of above 10 will increase your chances if you scored a low probability in the SAM/Money ratio, as the promise of future opportunity (TAM) is good.";
     }
 }

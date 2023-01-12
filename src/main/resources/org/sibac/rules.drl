@@ -230,12 +230,14 @@ when
     Evidence(probability==1.0, description == "What’s your TAM within 5 years?", $TAM : value )
 then
 	System.out.println("rule input SAM & Money triggered");
-	Double probabilitySamtoMoney =  Double.valueOf($SAM) / Double.valueOf($money2market) > 9 ? 0.8 : 0.2;
-	Double probabilityTamToSam = Double.valueOf($TAM) / Double.valueOf($SAM) > 9 ? 1.0 : 0.0;
+	Double SamtoMoney =  Double.valueOf($SAM) / Double.valueOf($money2market);
+	Double TamToSam = Double.valueOf($TAM) / Double.valueOf($SAM);
+	Double probabilitySamtoMoney = SamtoMoney > 9 ? 0.8 : 0.2;
+	Double probabilityTamToSam = TamToSam > 9 ? 1.0 : 0.0;
 
-//	insert(new Hypothesis(probabilitySamtoMoney, "SAM/money2market", "yes"));
+	insert(new Hypothesis(SamtoMoney, "SAM/money2market", "yes"));
 	insert(new Hypothesis(probabilitySamtoMoney, "SAM/money2marketProb", "yes"));
-//	insert(new Hypothesis(probabilityTamToSam, "TAM/SAM", "yes"));
+	insert(new Hypothesis(TamToSam, "TAM/SAM", "yes"));
 	insert(new Hypothesis(probabilityTamToSam, "TAM/SAMProb", "yes"));
 end
 
@@ -270,7 +272,10 @@ salience 9
 when
    $Hypothesis : Hypothesis(description == "Market", value == "yes")
    $Conclusion : Conclusion(description=="Frame:Traction")
+   $H1 : Hypothesis(description == "SAM/money2market", value == "yes")
+   $H2 : Hypothesis(description == "TAM/SAM", value == "yes")
 then
     System.out.println("rule Frame: Traction triggered");
-    insert(new Conclusion("Frame:Market", $Conclusion.getCount() + $Hypothesis.getProbability() * 0.18));
+    Double probability = $Conclusion.getCount() + $Hypothesis.getProbability() * 0.18;
+    insert(new Conclusion("Frame:Market", probability, $Conclusion.addExplanationToList($Conclusion.getExplanation(), $Conclusion.getOpportunityExplanation(probability, $H1.getProbability(), $H2.getProbability()))));
 end
