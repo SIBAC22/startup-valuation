@@ -27,7 +27,9 @@ public class DroolsTest {
 			kSession.addEventListener(new FactListener());
 
 			// go !
+			//can be yes or no
 			kSession.insert(new Evidence(1.0, "Do you know what your business needs?", "yes"));
+
 			kSession.insert(new FrameProduct(1.0,"What is your TRL? [value 1-4]", "4" ));
 
 			kSession.insert(new Evidence(1.0, "Do you have the technical skills?", "yes"));
@@ -48,9 +50,9 @@ public class DroolsTest {
 
 			kSession.insert(new Evidence(1.0, "Can you protect your technology?", "yes"));
 
-			kSession.insert(new Evidence(1.0, "What’s your SAM within 5 years?", "10"));
-			kSession.insert(new Evidence(1.0, "How much money do you need to enter a market?", "1"));
-			kSession.insert(new Evidence(1.0, "What’s your TAM within 5 years?", "10"));
+			kSession.insert(new Evidence(1.0, "What’s your SAM within 5 years?", "100"));
+			kSession.insert(new Evidence(1.0, "How much money do you need to enter a market?", "10"));
+			kSession.insert(new Evidence(1.0, "What’s your TAM within 5 years?", "1000000"));
 
 			kSession.fireAllRules();
 

@@ -221,57 +221,30 @@ when
     Evidence(probability==1.0, description == "What’s your TAM within 5 years?", $TAM : value )
 then
 	System.out.println("rule input SAM & Money triggered");
-	if (Double.valueOf($SAM)/Double.valueOf($money2market) > 9) { insert(new Hypothesis(0.9, "SAM/money2market", "yes")); insert(new Hypothesis(0.9, "SAM/money2marketProb", "yes")); }
-	else { insert(new Hypothesis(0.1, "SAM/money2market", "yes")); insert(new Hypothesis(0.1, "SAM/money2marketProb", "yes")); }
+	if (Double.valueOf($SAM)/Double.valueOf($money2market) > 9) { insert(new Hypothesis(0.8, "SAM/money2market", "yes")); insert(new Hypothesis(0.8, "SAM/money2marketProb", "yes")); }
+	else { insert(new Hypothesis(0.2, "SAM/money2market", "yes")); insert(new Hypothesis(0.2, "SAM/money2marketProb", "yes")); }
 
-	if (Double.valueOf($TAM)/Double.valueOf($SAM) > 9) { insert(new Hypothesis(0.9, "TAM/SAM", "yes")); insert(new Hypothesis(0.9, "TAM/SAMProb", "yes")); }
-    else { insert(new Hypothesis(0.1, "TAM/SAM", "yes")); insert(new Hypothesis(0.1, "TAM/SAMProb", "yes")); }
+	if (Double.valueOf($TAM)/Double.valueOf($SAM) > 9) { insert(new Hypothesis(1.0, "TAM/SAM", "yes")); insert(new Hypothesis(1.0, "TAM/SAMProb", "yes")); }
+    else { insert(new Hypothesis(0.0, "TAM/SAM", "yes")); insert(new Hypothesis(0.0, "TAM/SAMProb", "yes")); }
 end
 
 
 //rule17
-rule "Use hypothesis to calculate SAM/Money2Market"
-@LS1(2.3)
-@LN1(0.43)
-salience 7
-when
-    Hypothesis(description == "SAM/money2market", value == "yes")
-then
-	System.out.println("rule calculate SAM/Money2Market triggered");
-    TrackingAgendaListener.getFactRef(Hypothesis.class, "SAM/money2marketProb", "yes").update();
-
-end
-
-//rule18
-rule "Use hypothesis to calculate TAM/SAM"
-@LS1(19.0)
-@LN1(1.0)
-salience 6
-when
-    Hypothesis(description == "TAM/SAM", value == "yes")
-then
-	System.out.println("rule calculate TAM/SAM triggered");
-    TrackingAgendaListener.getFactRef(Hypothesis.class, "TAM/SAMProb", "yes").update();
-end
-
-//rule19
-rule "Create hypotehsis that holds conditional prob of P(SAM/Money)*P(TAM/SAM)"
+rule "Create hypothesis Market that holds prob of SAM/Money > 9?"
 salience 5
 when
-    $h1 : Hypothesis(description == "TAM/SAMProb", value == "yes")
     $h2 : Hypothesis(description == "SAM/money2marketProb", value == "yes")
 then
     System.out.println("cond prob TAM, SAM, Money");
-    System.out.println($h1.getProbability() * $h2.getProbability());
-    insert(new Hypothesis($h1.getProbability() * $h2.getProbability(), "Market", "yes"));
+    insert(new Hypothesis($h2.getProbability(), "Market", "yes"));
 end
 
-//rule20
+//rule18
 rule "Probability of market opportunity"
-@LS1(19.0)
+@LS1(9.0)
 @LN1(1.0)
-@LS2(0.25)
-@LN2(0.05)
+@LS2(0.67)
+@LN2(0.11)
 salience 1
 when
     Hypothesis(description == "SAM/money2marketProb", value == "yes")
@@ -279,4 +252,17 @@ when
 then
     System.out.println("rule market opportunity prob");
     TrackingAgendaListener.getFactRef(Hypothesis.class, "Market", "yes").update();
+
+end
+
+//rule19
+rule "Frame: Market"
+salience 9
+when
+
+   $Hypothesis : Hypothesis(description == "Market", value == "yes")
+   $Conclusion : Conclusion(description=="Frame:Traction")
+then
+    System.out.println("rule Frame: Traction triggered");
+    insert(new Conclusion("Frame:Market", $Conclusion.getCount() + $Hypothesis.getProbability() * 0.18));
 end
